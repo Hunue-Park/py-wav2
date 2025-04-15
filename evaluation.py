@@ -12,7 +12,7 @@ import re
 def preprocess_ksponspeech_text(text):
     """KsponSpeech 텍스트 전처리 (수정)"""
     # 원본 텍스트 출력
-    print(f"원본 텍스트: '{text}'")
+    # print(f"원본 텍스트: '{text}'")
     
     # 1. 단독 잡음 기호 (단어 시작에 나오는 'o', 'b' 등)
     text = re.sub(r'^\s*[onblu+*]\s+', '', text)  # 문장 시작
@@ -31,7 +31,7 @@ def preprocess_ksponspeech_text(text):
     # 5. 공백 정규화
     text = ' '.join(text.split())
     
-    print(f"전처리 후: '{text}'")
+    # print(f"전처리 후: '{text}'")
     return text
 
 def calculate_cer(predictions, references):
@@ -60,7 +60,6 @@ def calculate_cer(predictions, references):
         
         # Levenshtein 거리 계산
         edits = Levenshtein.distance(hyp_no_space, ref_no_space)
-        print(f"[{idx}] 참조: '{ref_no_space}', 예측: '{hyp_no_space}', 편집 거리: {edits}")
         
         # 누적
         total_edits += edits
@@ -72,7 +71,7 @@ def calculate_cer(predictions, references):
         return 1.0  # 빈 참조 텍스트의 경우 최대 오류율 반환
     
     cer = total_edits / total_chars
-    print(f"총 편집 횟수: {total_edits}, 총 문자 수: {total_chars}, CER: {cer:.4f}")
+    # print(f"총 편집 횟수: {total_edits}, 총 문자 수: {total_chars}, CER: {cer:.4f}")
     return cer
 
 
@@ -117,18 +116,22 @@ def evaluate_model(model_name, test_data_path, result_file=None):
             # 텍스트 전처리 (공백 정규화)
             prediction = prediction.strip()
             reference = preprocess_ksponspeech_text(reference)
+
+            # [unk] 토큰 제거 (결과 표시용)
+            cleaned_prediction = prediction.replace("[unk]", "")
+            cleaned_prediction = " ".join(cleaned_prediction.split())
             
             # 개별 파일 CER 계산
-            file_cer = calculate_cer([prediction], [reference])
+            file_cer = calculate_cer([cleaned_prediction], [reference])
             
             individual_results.append({
                 'audio_file': audio_file,
                 'reference': reference,
-                'prediction': prediction,
+                'prediction': cleaned_prediction,
                 'cer': file_cer
             })
             
-            all_predictions.append(prediction)
+            all_predictions.append(cleaned_prediction)
             all_references.append(reference)
             
         except Exception as e:
