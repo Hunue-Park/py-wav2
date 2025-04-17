@@ -12,7 +12,7 @@ from data_processing import load_audio_file, load_transcript
 from w2v_engine import Wav2VecCTCEngine
 from transformers import Wav2Vec2CTCTokenizer
 import pprint
-
+import time
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -76,7 +76,10 @@ def main(args):
     
     # 5. GOP 계산 (음절 단위)
     print("\n5. 음절별 발음 점수 계산 중...")
+    start_time = time.time()
     gop_scores = w2v_engine.calculate_gop(args.audio_file, transcript)
+    elapsed = time.time() - start_time
+    print(f"Single run elapsed time: {elapsed:.3f} seconds")    
     # pprint.pprint(gop_scores)
     
     

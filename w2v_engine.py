@@ -1,12 +1,9 @@
 import torch
 import numpy as np
-import soundfile as sf
 from pathlib import Path
-from dtw import dtw, rabinerJuangStepPattern
+from dtw import dtw
 from transformers import Wav2Vec2Processor, Wav2Vec2Model, Wav2Vec2ForCTC
 import librosa
-import pprint
-import matplotlib.pyplot as plt
 class Wav2VecCTCEngine:
     _instances = {}  # 모델 인스턴스 캐싱을 위한 클래스 변수
     
@@ -84,44 +81,6 @@ class Wav2VecCTCEngine:
 
         alignment = dtw(X, Y, keep_internals=True, step_pattern="asymmetricP1",)
         return alignment.index1, alignment.index2
-
-    def align_audio_to_text(self, audio_path: str, text: str, global_constraint=None):
-        """
-        전체 파이프라인: 오디오 로드 → 피처 추출 → text→ids → prototype 추출 → DTW 정렬 → segments 반환
-        segments: dict[token_index] = (start_frame, end_frame)
-        """
-        # 1) audio → embedding X
-        audio, sr = self.load_audio(audio_path)
-        X = self.extract_embedding(audio, sr)
-        print(X.shape, 'X.shape')
-        T = X.shape[0]
-
-        # 2) text → input_ids (음절 단위)
-        inputs = self.processor(text=text, return_tensors="pt", padding=True)
-        input_ids = inputs.input_ids.squeeze(0).cpu().tolist()
-
-        # 3) token prototypes
-        proto = self.get_prototypes()
-        Y = proto[input_ids]  # shape (M, D)
-        M = Y.shape[0]
-
-        # 4) 평균 토큰당 프레임 수로 Y 확장
-        avg_len = max(1, T // M)
-        Y_expanded = np.repeat(Y, avg_len, axis=0)  # shape (M*avg_len, D)
-
-        # 4) DTW alignment
-        path_X, path_Y = self.dtw_align(X, Y_expanded)
-        print(path_X, 'path_X')
-        print(path_Y, 'path_Y')
-
-        # 5) segment 계산
-        from collections import defaultdict
-        segments = defaultdict(list)
-        for i_frame, j_tok in zip(path_X, path_Y):
-            segments[j_tok].append(i_frame)
-
-        boundaries = {j: (min(frames), max(frames)) for j, frames in segments.items()}
-        return {self.processor.tokenizer.convert_ids_to_tokens([j])[0]: boundaries[j] for j in boundaries}
     
     def calculate_gop(self, audio_path: str, text: str, eps: float = 1e-8):
         """음절 단위 GOP 점수 계산 (텍스트 순서 유지)"""
@@ -231,9 +190,3 @@ class Wav2VecCTCEngine:
             "words": words
         }
         return result
-
-
-# 사용 예시:
-# w2v = Wav2VecCTC.get_instance('kresnik/wav2vec2-large-xlsr-korean')\#
-# segments = w2v.align_audio_to_text('user.wav', '안녕하세요. 오늘 날씨가 좋네요.')
-# print(segments)  # {'안': (0,10), '녕': (11,20), ...}
