@@ -118,58 +118,8 @@ class Wav2VecCTCEngine:
 
         boundaries = {j: (min(frames), max(frames)) for j, frames in segments.items()}
         return {self.processor.tokenizer.convert_ids_to_tokens([j])[0]: boundaries[j] for j in boundaries}
-        
-    def calculate_gop(self, audio_path: str, text: str, global_constraint=None, eps: float = 1e-8):
-        """
-        audio_path와 text로부터 음절 단위 GOP 점수 계산 후 딕셔너리 반환
-        returns: dict[token_string] = GOP_score
-        """
-        # 1) audio load
-        audio, sr = self.load_audio(audio_path)
-        # 2) frame-level logits → probabilities
-        logits = self.extract_logits(audio, sr)  # shape = (T, V)
-        exp_logits = np.exp(logits)
-        probs = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
-
-        # 3) DTW alignment to get frames per token idx
-        # extract embedding and prototypes as in align_audio_to_text
-        X = self.extract_embedding(audio, sr)
-        inputs = self.processor(text=text, return_tensors="pt", padding=True)
-        input_ids = inputs.input_ids.squeeze(0).cpu().tolist()
-        print(input_ids, 'input_ids')
-        T = X.shape[0]
-        # 3) token prototypes
-        proto = self.get_prototypes()
-        Y = proto[input_ids]  # shape (M, D)
-        M = Y.shape[0]
-
-        # 4) 평균 토큰당 프레임 수로 Y 확장
-        avg_len = max(1, T // M)
-        Y_expanded = np.repeat(Y, avg_len, axis=0)  # shape (M*avg_len, D)
-
-        # 4) DTW alignment
-        path_X, path_Y_exp = self.dtw_align(X, Y_expanded)
-        print(path_X, 'path_X')
-        print(path_Y_exp, 'path_Y_exp')
-
-        # 6) 경로 Y 인덱스를 원본 토큰 위치로 매핑
-        path_Y = [int(idx // avg_len) for idx in path_Y_exp]
-
-        for i_frame, j_pos in zip(path_X, path_Y):
-            token_id = input_ids[j_pos]
-            token_str = self.processor.tokenizer.convert_ids_to_tokens([token_id])[0]
-            print(f"frame {i_frame} ↔ token position {j_pos} (vocab idx {token_id}, token '{token_str}')")
-
-        # 7) 음절 구간 계산
-        from collections import defaultdict
-        segments = defaultdict(list)
-        for i_frame, j_tok in zip(path_X, path_Y):
-            segments[j_tok].append(i_frame)
-
-        boundaries = {j: (min(frames), max(frames)) for j, frames in segments.items()}
-        return {self.processor.tokenizer.convert_ids_to_tokens([j])[0]: boundaries[j] for j in boundaries}
     
-    def calculate_gop_v2(self, audio_path: str, text: str, eps: float = 1e-8):
+    def calculate_gop(self, audio_path: str, text: str, eps: float = 1e-8):
         """음절 단위 GOP 점수 계산 (텍스트 순서 유지)"""
         # 1) 오디오 로드
         audio, sr = self.load_audio(audio_path)
