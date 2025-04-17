@@ -75,13 +75,14 @@ def main(args):
     # 5. GOP 계산 (음절 단위)
     print("\n5. 음절별 발음 점수 계산 중...")
     gop_scores = w2v_engine.calculate_gop(args.audio_file, transcript)
-    # print(gop_scores, 'gop_scores')
-    pprint.pprint(gop_scores)
+    
     
     
     
     # 6. 최종 결과 계산 및 출력
     print("\n===== 발음 평가 최종 결과 =====")
+    result = w2v_engine.format_gop_as_response(gop_scores)
+    pprint.pprint(result)
     
     # 전체 평균 점수
     

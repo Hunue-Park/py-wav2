@@ -179,6 +179,54 @@ class Wav2VecCTCEngine:
             normalized = [(token, 0.0) for token, _ in gop_list]
 
         return normalized
+    
+    def format_gop_as_response(self, gop_list):
+        """
+        gop_list: [(token_str, score), ...] 
+            - token_str에는 한글 음절 혹은 '|'(스페이스) 포함
+            - score는 0~100 사이 float
+        """
+        words = []
+        curr_tokens = []
+        curr_scores = []
+        for token, score in gop_list:
+            if token == "[UNK]":
+                continue
+            if token == "|":
+                # 공백이니까 지금까지 모인 음절을 하나의 단어로
+                if curr_tokens:
+                    word = "".join(curr_tokens)
+                    avg_score = sum(curr_scores) / len(curr_scores)
+                    words.append({
+                        "word": word,
+                        "scores": {"pronunciation": round(avg_score, 0)}
+                    })
+                    curr_tokens = []
+                    curr_scores = []
+            else:
+                curr_tokens.append(token)
+                curr_scores.append(score)
+        # 마지막 단어 flush
+        if curr_tokens:
+            word = "".join(curr_tokens)
+            avg_score = sum(curr_scores) / len(curr_scores)
+            words.append({
+                "word": word,
+                "scores": {"pronunciation": round(avg_score, 0)}
+            })
+
+        # overall 점수는 단어별 점수 평균
+        if words:
+            overall = sum(w["scores"]["pronunciation"] for w in words) / len(words)
+        else:
+            overall = 0.0
+
+        result = {
+            "overall": round(overall, 1),
+            "pronunciation": round(overall, 1),
+            "words": words
+        }
+        return result
 
 
 # 사용 예시:
