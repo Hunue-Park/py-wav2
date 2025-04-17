@@ -6,10 +6,12 @@ import torch
 import os
 import logging
 from g2pk import G2p  # 한국어 g2p 라이브러리
+from dtw import dtw
 
 from data_processing import load_audio_file, load_transcript
 from model import Wav2VecCTC
 from gop_calculation import normalize_gop_score, get_pronunciation_grade
+from transformers import Wav2Vec2CTCTokenizer
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -32,14 +34,14 @@ def main(args):
     # 2. 한국어 발음 변환 (G2P) - 음절 단위 유지
     try:
         print("\n2. 정답 텍스트 발음 변환 중...")
-        g2p = G2p()  # 한국어 G2P 초기화
-        standard_pronunciation = g2p(transcript)
+        # g2p = G2p()  # 한국어 G2P 초기화
+        # standard_pronunciation = g2p(transcript)
         
         # 음절 단위로 분리 (공백 제거)
-        syllables = standard_pronunciation.replace(" ", "")
+        syllables = transcript.replace(" ", "")
         syllable_tokens = list(syllables)  # '안녕하세요' → ['안', '녕', '하', '세', '요']
         
-        print(f"   - 표준 발음: {standard_pronunciation}")
+        # print(f"   - 표준 발음: {standard_pronunciation}")
         print(f"   - 음절 시퀀스: {syllable_tokens} ({len(syllable_tokens)}개 음절)")
     except Exception as e:
         logger.error(f"G2P 변환 실패: {e}")
@@ -53,6 +55,17 @@ def main(args):
         
         model = Wav2VecCTC.get_instance(model_name=args.model_name, device=device)
         model_vocab = model.get_vocab()
+
+        tokenizer = Wav2Vec2CTCTokenizer(
+            "./env/fine-tuned-wav2vec2-kspon/vocab.json",
+            unk_token="[UNK]",
+            pad_token="[PAD]",
+            word_delimiter_token=" "
+        )  # :contentReference[oaicite:4]{index=4}
+
+        tokens = tokenizer.tokenize(transcript)
+        token_index = tokenizer.convert_tokens_to_ids(tokens)
+        print(token_index, 'token_index !!!!!!')
         
         # 인덱스→토큰 매핑 생성
         idx_to_token = {}
@@ -81,7 +94,7 @@ def main(args):
         print(f"오류 세부 정보: {str(e)}")
         return
     
-    # 4. 음절별 프레임 정렬 (균등 분할 방식)
+    # 4. 음절별 프레임 정렬 (진짜 DTW 방식)
     try:
         print("\n4. 음절별 프레임 정렬 중...")
         
@@ -93,24 +106,56 @@ def main(args):
             print("경고: 모델 vocabulary에 있는 정답 음절이 없습니다.")
             return
         
-        # 균등 분할 (단순하고 안정적인 방식)
+        # 음절별 확률 행렬 구성 (프레임 x 음절)
         n_frames = probs_matrix.shape[0]
-        n_syllables = len(valid_syllables)
-        frames_per_syllable = max(1, n_frames // n_syllables)
         
-        syllable_segments = []
+        # 음절 순서대로 해당 음절의 확률값만 뽑아서 행렬 구성
+        query_seq = []
         for i, syllable in enumerate(valid_syllables):
-            start = i * frames_per_syllable
-            end = (i + 1) * frames_per_syllable if i < n_syllables - 1 else n_frames
-            syllable_segments.append((syllable, start, end))
+            syllable_idx = token_to_idx.get(syllable)
+            if syllable_idx is not None:
+                prob_seq = probs_matrix[:, syllable_idx].cpu().numpy()
+                query_seq.append(prob_seq)
+        
+        # 목표 행렬: 각 음절별로 1인 단위 벡터 (n_syllables x n_syllables)
+        target_seq = np.eye(len(valid_syllables))
+        
+        # DTW 적용: 음절별 목표 벡터와 프레임별 확률 벡터 사이의 최적 정렬 찾기
+        alignment = dtw(
+            target_seq,
+            np.column_stack(query_seq).T,  # (n_frames x n_syllables) 행렬로 변환
+            keep_internals=True,
+            step_pattern="symmetric2"
+        )
+        
+        # DTW 결과에서 각 음절의 프레임 범위 추출
+        syllable_segments = []
+        
+        # 음절별로 매핑된 프레임 범위 찾기
+        for syl_idx in range(len(valid_syllables)):
+            # 해당 음절 인덱스에 매핑된 프레임 인덱스 찾기 (DTW 경로 사용)
+            mask = alignment.index1 == syl_idx
+            frames = alignment.index2[mask]
+            
+            if len(frames) > 0:
+                start_frame = np.min(frames)
+                end_frame = np.max(frames)
+                
+                # 최소 길이 3 보장
+                if end_frame - start_frame + 1 < 3:
+                    end_frame = min(n_frames - 1, start_frame + 2)
+                
+                syllable = valid_syllables[syl_idx]
+                syllable_segments.append((syllable, int(start_frame), int(end_frame)))
         
         # 정렬 결과 출력
-        print(f"   - 정렬 완료: {len(syllable_segments)}개 음절 세그먼트")
+        print(f"   - DTW 정렬 완료: {len(syllable_segments)}개 음절 세그먼트")
         for i, (syllable, start, end) in enumerate(syllable_segments):
-            print(f"   - 음절 {i+1}: '{syllable}' (프레임 {start}-{end})")
-            
+            frame_duration = end - start + 1
+            print(f"   - 음절 {i+1}: '{syllable}' (프레임 {start}-{end}, 길이: {frame_duration})")
+        
     except Exception as e:
-        logger.error(f"음절 정렬 실패: {e}")
+        logger.error(f"DTW 음절 정렬 실패: {e}")
         print(f"오류 세부 정보: {str(e)}")
         return
     

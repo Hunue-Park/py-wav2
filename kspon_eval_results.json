@@ -1,6 +1,6 @@
 {
   "model_name": "./env/fine-tuned-wav2vec2-kspon",
-  "overall_cer": 0.24677296886864086,
+  "overall_cer": 0.20045558086560364,
   "sample_count": 90,
   "individual_results": [
     {
@@ -12,37 +12,37 @@
     {
       "audio_file": "KsponSpeech_E02236.pcm",
       "reference": "집에 원래",
-      "prediction": "지에 원래",
-      "cer": 0.25
+      "prediction": "집에 원래",
+      "cer": 0.0
     },
     {
       "audio_file": "KsponSpeech_E01717.pcm",
       "reference": "걔 뭐 남는 게 시간이라매",
-      "prediction": "게 뭐 나오는 게 시간이라",
+      "prediction": "뭐 나 오는 게 시간이라면",
       "cer": 0.4
     },
     {
       "audio_file": "KsponSpeech_E01924.pcm",
       "reference": "아 나 어제 극한 직업 봤거든",
-      "prediction": "아 나어제 한지 고 봤거든",
-      "cer": 0.2727272727272727
+      "prediction": "아 나 어제 극한지 곱봤거든",
+      "cer": 0.18181818181818182
     },
     {
       "audio_file": "KsponSpeech_E00971.pcm",
       "reference": "네 저는 기동대대 소속이었는데 이제 거기서는 이제 원래는 소총수였어요 소총수였다가 이제 황히 분대로 넘어가면서",
-      "prediction": "데 저는 기동대에 대 수석이었는데 이제 거기서는 이제 원래는 소총수였어요 수청수였다가 이제 확기분대로 넘어 가면서",
+      "prediction": "데 저는 기동대에 대 수석이었는데 이제 거기서는 이제 원래는 소총수였어요 수청수였다가 이제 확기 분대로 넘어 가면서",
       "cer": 0.16666666666666666
     },
     {
       "audio_file": "KsponSpeech_E02357.pcm",
       "reference": "그래 그래가지고 돈이 좀 많이 깨졌어 생각했던 것보다 많이 깨졌어 어",
-      "prediction": "그래가지고 돈이 많이 깨졌어 생각했던 것보다 많이 깨졌어 아",
-      "cer": 0.14285714285714285
+      "prediction": "그 그래가지고 돈이 많이 깨졌어 생각했던 것보다 많이 깨졌어 어",
+      "cer": 0.07142857142857142
     },
     {
       "audio_file": "KsponSpeech_E02790.pcm",
       "reference": "어 어딜 가나 알바들은 불쌍한 거 같애",
-      "prediction": "어디가 알바들은 절사한 거 같애",
+      "prediction": "어디간 알바들은 설쌍한 거 같애",
       "cer": 0.3333333333333333
     },
     {
@@ -54,25 +54,25 @@
     {
       "audio_file": "KsponSpeech_E02584.pcm",
       "reference": "제가요",
-      "prediction": "제가해",
+      "prediction": "제거요",
       "cer": 0.3333333333333333
     },
     {
       "audio_file": "KsponSpeech_E00796.pcm",
       "reference": "심포지엄 스물 다섯 명인 거 알아",
-      "prediction": "신포지한 스물 다섯 명인 거아",
-      "cer": 0.23076923076923078
+      "prediction": "신포지험 스물 다섯 명인 거 알아",
+      "cer": 0.15384615384615385
     },
     {
       "audio_file": "KsponSpeech_E00027.pcm",
       "reference": "아니 그니까 같이 사는 거 생각 없어 딴 딴 데 유성이나 이쪽에",
-      "prediction": "아니까 같이 다능미 생각 없어 그 딴 딴데 유성이 나 이초해",
-      "cer": 0.3333333333333333
+      "prediction": "아니까 같이 타능에 생각없어 그딴 딴데 유성이 나 이쪽해",
+      "cer": 0.2916666666666667
     },
     {
       "audio_file": "KsponSpeech_E01852.pcm",
       "reference": "근데 그 싸이렌은 왜 해",
-      "prediction": "근데 그 사이랑 는 외해",
+      "prediction": "근데 그 사이란는 왜",
       "cer": 0.4444444444444444
     },
     {
@@ -84,32 +84,32 @@
     {
       "audio_file": "KsponSpeech_E00351.pcm",
       "reference": "그런 게 어 사람들이 다 그냥 안 듣고 있겠지만 혹시나 듣는다면",
-      "prediction": "그런 게 어 우 사람들이 당신네 안 될고 있겠지만 확신나 듣는다면",
+      "prediction": "그런 게 어 우사람들이 당신이 안 됐고 있겠지만 확신나 듣는다면",
       "cer": 0.28
     },
     {
       "audio_file": "KsponSpeech_E00184.pcm",
       "reference": "너는 쪼끄만하거든 애가",
-      "prediction": "너는 쪼고마한 그든 애가",
-      "cer": 0.4
+      "prediction": "너는 쪼고 말아 거든 애가",
+      "cer": 0.3
     },
     {
       "audio_file": "KsponSpeech_E00802.pcm",
       "reference": "그럴 수",
-      "prediction": "그러서",
+      "prediction": "그렇어",
       "cer": 0.6666666666666666
     },
     {
       "audio_file": "KsponSpeech_E02542.pcm",
       "reference": "그래서 그렇게 받고 또 자유 연기 준비해 간 것도 그때는 최대한 잘 할려고보단 집중할려고 했던 것 같애요",
-      "prediction": "그래서 그렇게 받고 또 자유양기 준비해간 것도 그때는 최대한 잘 알려고하기 못단 집중할려고 했다 거 같애요",
-      "cer": 0.16666666666666666
+      "prediction": "그래서 그렇게 받고 또 자유연기 준비해간 것도 그때는 최대한 잘 할려고하기 보단 집중 할려고 했다 거 같애요",
+      "cer": 0.09523809523809523
     },
     {
       "audio_file": "KsponSpeech_E02153.pcm",
       "reference": "무슨 상관이야 모르겠어",
-      "prediction": "우즘상관 아냐 모르겠어",
-      "cer": 0.4
+      "prediction": "우즘 상관이야 모르겠어",
+      "cer": 0.2
     },
     {
       "audio_file": "KsponSpeech_E01504.pcm",
@@ -120,50 +120,50 @@
     {
       "audio_file": "KsponSpeech_E00829.pcm",
       "reference": "근데 코엑스 그거 말고 할 거 없잖아",
-      "prediction": "근데 프렉스 크거 말고 할 거 없잖아",
-      "cer": 0.21428571428571427
+      "prediction": "근데 코엑스 크거 말고 할 거 없잖아",
+      "cer": 0.07142857142857142
     },
     {
       "audio_file": "KsponSpeech_E01855.pcm",
       "reference": "아 깎아줘",
-      "prediction": "아 카가져",
-      "cer": 0.75
+      "prediction": "아 깝까줘",
+      "cer": 0.5
     },
     {
       "audio_file": "KsponSpeech_E02805.pcm",
       "reference": "토스 되면 해야되는 거 아니야",
-      "prediction": "스 내면 해야 되는 거 아니",
-      "cer": 0.25
+      "prediction": "토스 내면 해야 되는 거 아니야",
+      "cer": 0.08333333333333333
     },
     {
       "audio_file": "KsponSpeech_E00343.pcm",
       "reference": "근데 아이 잘 모르겠다 했어",
-      "prediction": "근데 아니 잘 모르겠도 있어",
-      "cer": 0.2727272727272727
+      "prediction": "근데 아니 잘 모르겠다 있어",
+      "cer": 0.18181818181818182
     },
     {
       "audio_file": "KsponSpeech_E00800.pcm",
       "reference": "말 안 했어",
-      "prediction": "그말하야 됐어",
-      "cer": 1.0
+      "prediction": "말하안 했어",
+      "cer": 0.25
     },
     {
       "audio_file": "KsponSpeech_E00169.pcm",
       "reference": "많이 안 변할려고 노력은 하는데 이제 나도 내가 시간을 내서 누구를 만난다는 게 조금 다른 사람한테도 피해 끼칠 수도 있고 또한 내가 그 시간에 다른 거를 활용해서",
-      "prediction": "많이 안배할려고 노력은 하는데 제 나도 내가 시간을 내서 누구를 만난다는 게 조금 다른 사람한테도 피해기칠 수도 있고 또한 내가 그 시간에 다른 거를 활용해서",
-      "cer": 0.046153846153846156
+      "prediction": "많이 안배할려고 노력은 하는데 이 나도 내가 시간을 내해서 누구를 만난다는 게 쪼금 다른 사람한테도 피해기칠 수도 있고 또한 내가 그 시간에 다른 거를 활용해서",
+      "cer": 0.07692307692307693
     },
     {
       "audio_file": "KsponSpeech_E02725.pcm",
       "reference": "아는형님이잖아",
-      "prediction": "안 느역님이잖아",
-      "cer": 0.42857142857142855
+      "prediction": "아느역님이잖아",
+      "cer": 0.2857142857142857
     },
     {
       "audio_file": "KsponSpeech_E00697.pcm",
       "reference": "좀 짠했는데 그래도",
-      "prediction": "좀 잖아 있는데 그래도",
-      "cer": 0.375
+      "prediction": "좀 아했는데 그래도",
+      "cer": 0.125
     },
     {
       "audio_file": "KsponSpeech_E01365.pcm",
@@ -174,37 +174,37 @@
     {
       "audio_file": "KsponSpeech_E00245.pcm",
       "reference": "그럴 수 있지 나쁘다는 게 아니라 그냥",
-      "prediction": "그럴랬 수 있지 나쁘다는 게 아니라 가냥",
-      "cer": 0.13333333333333333
+      "prediction": "그럴 수 있지 나쁘다는 게 아니라 그냥",
+      "cer": 0.0
     },
     {
       "audio_file": "KsponSpeech_E01952.pcm",
       "reference": "그러자마자 세 개를 다 외워야 되니까 너무 힘든 거야 근데 영어는 당연히 어렵겠지 기니까 그리고 시험에 나왔을 때",
-      "prediction": "그래서 세계를 다 여야야 되니까 너무 힘든 거야 근데 영원은 당연히 어렵게지 기니까 그런 시험이 나올을 때",
-      "cer": 0.30434782608695654
+      "prediction": "그래서 세계를 다 외야 되니까 너무 힘든 거야 근데 영어는 당연히 어렵게지 기니까 그리 시험이 나올을 때",
+      "cer": 0.21739130434782608
     },
     {
       "audio_file": "KsponSpeech_E01987.pcm",
       "reference": "운동 할 때도 별로 안마시니까",
-      "prediction": "운동할 때도 별로 안 마있니까",
+      "prediction": "운동할 때도 별로 안 맛시니까",
       "cer": 0.08333333333333333
     },
     {
       "audio_file": "KsponSpeech_E01005.pcm",
       "reference": "그 사람하고 한번 갈려고 호주를 그때 안 해본 것도 한 번 해보고 싶고",
-      "prediction": "그 사람하고 한뭐 갈려하고 호주를 그때 안해뽑못단만 해보고 싶고",
-      "cer": 0.25925925925925924
+      "prediction": "그 사람하고 한번 갈려고 호주를 그때 안해범으 딴만 해보고 싶고",
+      "cer": 0.18518518518518517
     },
     {
       "audio_file": "KsponSpeech_E00079.pcm",
       "reference": "근데 그게 맞는 거 같애 식당 이미지도 있고 다른 사람 밥 먹는데 피해 주는 것도 있고",
-      "prediction": "근데 그게 맞는 거 같애 식당 이미지도 있고 다른 사람 반먹는데 피해주는 것도 있고",
+      "prediction": "근데 그게 맞는 거 같애 식당 이미지도 있고 다른 사람 반 먹는데 피해주는 것도 있고",
       "cer": 0.030303030303030304
     },
     {
       "audio_file": "KsponSpeech_E00326.pcm",
       "reference": "뭐 뭐라고 하고 나왔어",
-      "prediction": "뭐 뭐려가고 나왔어",
+      "prediction": "뭐라가고 나왔어",
       "cer": 0.3333333333333333
     },
     {
@@ -216,20 +216,20 @@
     {
       "audio_file": "KsponSpeech_E02737.pcm",
       "reference": "아직 신청 기간도 아니고 신청은 해놨는데 아직 그 내가 입사 할 수 있을지 그거 아직 결과가 안 나와 가지고",
-      "prediction": "아직 신청 기간도 아니고 신청은 해난데 아직 그 내가 입사할 수 있을지 그거 아직 결과 갔 나가지고",
+      "prediction": "아직 신청 기관도 아니고 신청은 해난데 아직 그 내가 입사할 수 있을지 그거 아직 결과 안 나가지고",
       "cer": 0.11904761904761904
     },
     {
       "audio_file": "KsponSpeech_E01028.pcm",
       "reference": "박하 너 많이 봐 l",
-      "prediction": "바카 너 많이 봐",
-      "cer": 0.42857142857142855
+      "prediction": "박카 너 많이 봐",
+      "cer": 0.2857142857142857
     },
     {
       "audio_file": "KsponSpeech_E02441.pcm",
       "reference": "음 저같은 경우는 이제 그 그런 예전에는 그 이런 TV 매체도 이제 보면 이제",
-      "prediction": "음 저같은 경우는 이제 그 그런 예전에는 그 이런 이 매채도 이제 오면이제",
-      "cer": 0.13333333333333333
+      "prediction": "음 저 같은 경우는 이제 그 그런 예전에는 그 이런 비 매체도 이제 보면 이제",
+      "cer": 0.06666666666666667
     },
     {
       "audio_file": "KsponSpeech_E02119.pcm",
@@ -240,25 +240,25 @@
     {
       "audio_file": "KsponSpeech_E01438.pcm",
       "reference": "완전 옛날 거잖아",
-      "prediction": "혼전히 애날 거잖아",
-      "cer": 0.42857142857142855
+      "prediction": "운전히 옛날 거잖아",
+      "cer": 0.2857142857142857
     },
     {
       "audio_file": "KsponSpeech_E02870.pcm",
       "reference": "아 그늘막이랑 그거 어",
-      "prediction": "아 근네막이랑 그거 어",
+      "prediction": "아 그네악이랑 그거 어",
       "cer": 0.2222222222222222
     },
     {
       "audio_file": "KsponSpeech_E01411.pcm",
       "reference": "어 서유럽",
-      "prediction": "어 서일어",
-      "cer": 0.5
+      "prediction": "어 서유로",
+      "cer": 0.25
     },
     {
       "audio_file": "KsponSpeech_E01968.pcm",
       "reference": "아 자격증 다 있지",
-      "prediction": "아 잘 다 있지",
+      "prediction": "아 차진 다 있지",
       "cer": 0.42857142857142855
     },
     {
@@ -270,14 +270,14 @@
     {
       "audio_file": "KsponSpeech_E00692.pcm",
       "reference": "어 그거 그냥 개 털었잖아 SKT가",
-      "prediction": "어 그 그냥 토로잖아 애스케티가",
-      "cer": 0.5714285714285714
+      "prediction": "어 그거 그냥 토었잖아 에스케이티가",
+      "cer": 0.5
     },
     {
       "audio_file": "KsponSpeech_E01822.pcm",
       "reference": "좀 채워놔야지",
-      "prediction": "좀 최고 다했지",
-      "cer": 0.6666666666666666
+      "prediction": "좀 최워 다했지",
+      "cer": 0.5
     },
     {
       "audio_file": "KsponSpeech_E00446.pcm",
@@ -312,44 +312,44 @@
     {
       "audio_file": "KsponSpeech_E01609.pcm",
       "reference": "그래가지고 이걸 어떻게 꺼야되나",
-      "prediction": "그래가지구 이걸 어떻게 거야 되나",
-      "cer": 0.14285714285714285
+      "prediction": "그래가지구 이걸 어떻게 꺼야 되나",
+      "cer": 0.07142857142857142
     },
     {
       "audio_file": "KsponSpeech_E01386.pcm",
       "reference": "것도 싫고",
-      "prediction": "것도 고",
+      "prediction": "것것도 싫고",
       "cer": 0.25
     },
     {
       "audio_file": "KsponSpeech_E00072.pcm",
       "reference": "어 내 내가 생각한 거보다는 그렇게 비싸지는 않은 거 같아",
-      "prediction": "근데 내가 생각한 거보다 그렇게 비싸진는 않는 거 같아",
-      "cer": 0.21739130434782608
+      "prediction": "데 내가 생각한 거보다 그렇게 비싸진 않는 거 같아",
+      "cer": 0.2608695652173913
     },
     {
       "audio_file": "KsponSpeech_E00853.pcm",
       "reference": "아 그래 나한테 뭐 다른 거 물어보지 않았어 아닌가",
-      "prediction": "아 그래 나한테 뭐 다른 거 부어 보지 않았어 아닌가",
+      "prediction": "아 그래 나한테 뭐 다른 거 부어보지 않았어 아닌가",
       "cer": 0.05
     },
     {
       "audio_file": "KsponSpeech_E02705.pcm",
       "reference": "그래서",
-      "prediction": "그래커",
+      "prediction": "그래까",
       "cer": 0.3333333333333333
     },
     {
       "audio_file": "KsponSpeech_E02711.pcm",
       "reference": "근데 걔네도 걔네도 고기 좋아해 그래서 우리가 그게 또 외국 나왔는데 스테이크가 많이 먹어야 되지 않겠냐 하면서 그 일 주일 있는 동안 점심 피자 파스타 먹고 저녁 스테이크 먹고",
-      "prediction": "근데 네도 그야 아 래도 보기 좋아해 그서 아 우리가 아 그래도 왜국 나는데 스테이크가 말이 뭐가디않겠냐면서 그래 일초 있는 동안래 거의 점심 피자 파스타 먹고 전녁 스데이크 먹고",
-      "cer": 0.39436619718309857
+      "prediction": "근데 네도 그 아 네도 보기 좋아해 그속 아 우리가 아 그래도 왜국 나는데 스테이크가 말이 뭐가되지 겠냥 면서 그리 조 있는 동안 거의 점심 피자 파스타 먹고 저녁 스데이크 먹고",
+      "cer": 0.3380281690140845
     },
     {
       "audio_file": "KsponSpeech_E01390.pcm",
       "reference": "되게 낯설면서",
-      "prediction": "되 났썰면서",
-      "cer": 0.5
+      "prediction": "되게 낫썰면서",
+      "cer": 0.3333333333333333
     },
     {
       "audio_file": "KsponSpeech_E01353.pcm",
@@ -366,25 +366,25 @@
     {
       "audio_file": "KsponSpeech_E01025.pcm",
       "reference": "내가 들었던 칭찬 중에 좋았던 거는 내가 고등학교 때나 중학교 때나",
-      "prediction": "내가 들었던 칭찬 중에 좋았던 거은 내가 뭐 그 오등학겠때나 중학했잖아",
-      "cer": 0.2962962962962963
+      "prediction": "내가 들었던 칭찬 중에 좋았던 거은 내가뭐 그 오등학교 때나 중학했잖아",
+      "cer": 0.25925925925925924
     },
     {
       "audio_file": "KsponSpeech_E02276.pcm",
       "reference": "어 거기에 인제 그 뭐야 콜레스테롤이 쪼끔 높게 나오고",
-      "prediction": "아 거기 인제 그 뭐야 콜래스트롤이 쪼금 놀게나오고",
+      "prediction": "아 거기에 인제 그 뭐야 콜래스트로이 쪼금 놀게 나오고",
       "cer": 0.2727272727272727
     },
     {
       "audio_file": "KsponSpeech_E01596.pcm",
       "reference": "아 괜찮은 거 같은데",
-      "prediction": "아찮은 어은데",
-      "cer": 0.375
+      "prediction": "아 찮한 거 같은데",
+      "cer": 0.25
     },
     {
       "audio_file": "KsponSpeech_E00105.pcm",
       "reference": "지금 인당 한 사십만 원 썼나",
-      "prediction": "집 인당한 사십 만원 썼나",
+      "prediction": "지 인당한십 만원썼나",
       "cer": 0.18181818181818182
     },
     {
@@ -396,56 +396,56 @@
     {
       "audio_file": "KsponSpeech_E01430.pcm",
       "reference": "암놈인지 숫놈인지 구별하는 거를 한번 기획해볼까 생각을 많이 해",
-      "prediction": "안 너민지 노인지 구별하는 거를 한 번 기획해볼까 신각을 많이해",
-      "cer": 0.2222222222222222
+      "prediction": "안 놈인지 노인지 구별하는 거를 한 번 기획해볼까 신각을 많이 해",
+      "cer": 0.14814814814814814
     },
     {
       "audio_file": "KsponSpeech_E01793.pcm",
       "reference": "가지고 옷을",
-      "prediction": "아지고 옷을",
+      "prediction": "가지고 오을",
       "cer": 0.2
     },
     {
       "audio_file": "KsponSpeech_E02488.pcm",
       "reference": "어 근데 엄 엄청 힘들대 근데",
-      "prediction": "어근데 엄엄청힘들 대 그데",
-      "cer": 0.09090909090909091
+      "prediction": "응근데 엄엄청 힘들 대 그데",
+      "cer": 0.18181818181818182
     },
     {
       "audio_file": "KsponSpeech_E02661.pcm",
       "reference": "그런 집 그 뭐 박수라던가 그런 댄스가",
-      "prediction": "그런 그뭐 박수하던가 뭐 그런 새가",
-      "cer": 0.3333333333333333
+      "prediction": "그런 그 뭐 박수라던가 뭐 그런 새가",
+      "cer": 0.26666666666666666
     },
     {
       "audio_file": "KsponSpeech_E00711.pcm",
       "reference": "그러고 할 거 하면 되지 않을까",
-      "prediction": "그래 할 거 함면 되지 않을까",
-      "cer": 0.25
+      "prediction": "그리 할 거 하면 되지 않을까",
+      "cer": 0.16666666666666666
     },
     {
       "audio_file": "KsponSpeech_E00895.pcm",
       "reference": "어 뭐 전도 유망하기는 하지 l",
-      "prediction": "아무 견도 유방하긴 하지시",
-      "cer": 0.5833333333333334
+      "prediction": "아뭐 견도 유방하긴 하지",
+      "cer": 0.5
     },
     {
       "audio_file": "KsponSpeech_E02809.pcm",
       "reference": "아 너 말했었는데",
-      "prediction": "아 너 말에서는데",
-      "cer": 0.2857142857142857
+      "prediction": "아 너 말해었는데",
+      "cer": 0.14285714285714285
     },
     {
       "audio_file": "KsponSpeech_E01125.pcm",
       "reference": "응 글로 글로 안 샀다고 하지 않았어",
-      "prediction": "글로 글로 안 었다고 하지 않았어",
-      "cer": 0.14285714285714285
+      "prediction": "글로 글로 안 샀다고 하지 않았어",
+      "cer": 0.07142857142857142
     },
     {
       "audio_file": "KsponSpeech_E01131.pcm",
       "reference": "아 동시접속은 하나도 안 돼",
-      "prediction": "아 동시 섭으을 하나다안데",
-      "cer": 0.45454545454545453
+      "prediction": "아 동시 섭으을 하나다데",
+      "cer": 0.5454545454545454
     },
     {
       "audio_file": "KsponSpeech_E02376.pcm",
@@ -462,14 +462,14 @@
     {
       "audio_file": "KsponSpeech_E02799.pcm",
       "reference": "뭘 아 모르지",
-      "prediction": "넓가 보르지",
-      "cer": 0.6
+      "prediction": "너 아 모르지",
+      "cer": 0.2
     },
     {
       "audio_file": "KsponSpeech_E00832.pcm",
       "reference": "그 옛날처럼 옛날에 정 문화가 다시 다시 돌아갈 수 있을 거 같은데 요즘은 너무 개인주의 문화가 너무 이렇게 심하게 가고 있어가지구 나 같은 경우에도",
-      "prediction": "그 옛날처럼 옛날에 정문화가 다시 다시 돌아갈 수 있을 거 같은데 요즘은 너무 개인주의 문화가 너무 그 심하게 가고 있어가지구 나같은 경우에너",
-      "cer": 0.06666666666666667
+      "prediction": "그 옛날처럼 옛날에 정문화가 다시 다시 돌아갈 수 있을 거 같은데 요즘은 너무 개인주의 문화가 너무 이케 심하게 가고 있어가지구 나 같은 경우에도",
+      "cer": 0.03333333333333333
     },
     {
       "audio_file": "KsponSpeech_E01899.pcm",
@@ -486,20 +486,20 @@
     {
       "audio_file": "KsponSpeech_E02417.pcm",
       "reference": "응 그건 그래",
-      "prediction": "음 거래",
-      "cer": 0.8
+      "prediction": "음 그래",
+      "cer": 0.6
     },
     {
       "audio_file": "KsponSpeech_E00016.pcm",
       "reference": "그렇지",
-      "prediction": "렇지",
-      "cer": 0.3333333333333333
+      "prediction": "그렇지",
+      "cer": 0.0
     },
     {
       "audio_file": "KsponSpeech_E01519.pcm",
       "reference": "그냥 욕심부리지 말고 그냥 차근차근 하는 게 더 좋은 거 같애 그것도 공부해야지 재테크도",
-      "prediction": "그냥 욕심 부르지 알고 창은 차원 하는 게서 좋은 거 같애 그 공부야지 첫때구도",
-      "cer": 0.3888888888888889
+      "prediction": "그냥 욕심 부르지 말고 이 창은 차원 하는 게 제 좋은 거 같애 그 공부야지 제때크도",
+      "cer": 0.3333333333333333
     },
     {
       "audio_file": "KsponSpeech_E01733.pcm",
@@ -510,37 +510,37 @@
     {
       "audio_file": "KsponSpeech_E00405.pcm",
       "reference": "하 에 이름이 그 하튼 그 배우 아시죠",
-      "prediction": "아 이름 그 같은 그배와시어",
-      "cer": 0.5714285714285714
+      "prediction": "아아 이름이 그 아튼 그배 와시죠",
+      "cer": 0.35714285714285715
     },
     {
       "audio_file": "KsponSpeech_E01082.pcm",
       "reference": "빕스 빕스",
-      "prediction": "밥스스",
+      "prediction": "스 스",
       "cer": 0.5
     },
     {
       "audio_file": "KsponSpeech_E02831.pcm",
       "reference": "해외 여행을 갔으면 그래도",
-      "prediction": "해외형을 갔으면 그도",
-      "cer": 0.2727272727272727
+      "prediction": "해외형을 갔으면 그래도",
+      "cer": 0.18181818181818182
     },
     {
       "audio_file": "KsponSpeech_E01929.pcm",
       "reference": "진짜 무슨 초중급에 빠글빠글 있고 위에 리프트 타고 올라 가는데 b",
-      "prediction": "진짜 무슨 초중급에 딱할빠있고 위에 리붙타고 올라가는데",
-      "cer": 0.2222222222222222
+      "prediction": "진짜 무슨 초중급에 할 있고 위에 리붙타고 올라가는데",
+      "cer": 0.25925925925925924
     },
     {
       "audio_file": "KsponSpeech_E00835.pcm",
       "reference": "나 어제",
-      "prediction": "나 오제",
-      "cer": 0.3333333333333333
+      "prediction": "나 어제",
+      "cer": 0.0
     },
     {
       "audio_file": "KsponSpeech_E01524.pcm",
       "reference": "어 쪼금더 싸요 쪼금 더",
-      "prediction": "조금 나사해 조금다",
+      "prediction": "조금 나새에 조금다",
       "cer": 0.7777777777777778
     }
   ]
