@@ -32,6 +32,8 @@ def main(args):
         print("1. 오디오 및 텍스트 파일 로드 중...")
         audio = load_audio_file(args.audio_file)
         transcript = load_transcript(args.transcript_file)
+        
+        
         print(f"   - 오디오 파일: {args.audio_file} ({len(audio)/16000:.2f}초)")
         print(f"   - 정답 텍스트: '{transcript}'")
     except Exception as e:
@@ -75,6 +77,7 @@ def main(args):
     # 5. GOP 계산 (음절 단위)
     print("\n5. 음절별 발음 점수 계산 중...")
     gop_scores = w2v_engine.calculate_gop(args.audio_file, transcript)
+    # pprint.pprint(gop_scores)
     
     
     

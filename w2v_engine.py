@@ -6,6 +6,7 @@ from dtw import dtw, rabinerJuangStepPattern
 from transformers import Wav2Vec2Processor, Wav2Vec2Model, Wav2Vec2ForCTC
 import librosa
 import pprint
+import matplotlib.pyplot as plt
 class Wav2VecCTCEngine:
     _instances = {}  # 모델 인스턴스 캐싱을 위한 클래스 변수
     
@@ -43,6 +44,8 @@ class Wav2VecCTCEngine:
 
     def load_audio(self, path: str, target_sr: int = 16000):
         audio, sr = librosa.load(path, sr=target_sr)
+        pre_emphasis = 0.97
+        audio = np.append(audio[0], audio[1:] - pre_emphasis * audio[:-1])
         return audio, sr
 
     def extract_embedding(self, audio: np.ndarray, sr: int):
@@ -78,7 +81,8 @@ class Wav2VecCTCEngine:
         DTW를 수행하여 최적 경로 인덱스 리스트 (path_X, path_Y) 반환
         global_constraint: Sakoe-Chiba 등의 윈도우 제약
         """
-        alignment = dtw(X, Y, keep_internals=True, step_pattern="symmetricP2")
+
+        alignment = dtw(X, Y, keep_internals=True, step_pattern="asymmetricP1",)
         return alignment.index1, alignment.index2
 
     def align_audio_to_text(self, audio_path: str, text: str, global_constraint=None):
