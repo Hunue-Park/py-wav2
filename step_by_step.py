@@ -1,19 +1,11 @@
 # main.py - 모델 의존성 최소화 버전
 import argparse
-import json
-import numpy as np
-import torch
-import os
 import logging
-from g2pk import G2p  # 한국어 g2p 라이브러리
-from dtw import dtw
 
 from data_processing import load_audio_file, load_transcript
 from w2v_onnx_engine import Wav2VecCTCOnnxEngine
-from transformers import AutoTokenizer
 import pprint
 import time
-from tokenizers import Tokenizer, models, pre_tokenizers, decoders
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

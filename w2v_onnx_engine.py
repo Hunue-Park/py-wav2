@@ -6,8 +6,6 @@ from onnx import numpy_helper
 from tokenizers import Tokenizer
 from collections import defaultdict
 import logging
-import pprint
-from dtw import dtw
 # Configure logging for debugging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
