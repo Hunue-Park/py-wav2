@@ -1,4 +1,3 @@
-import json
 import numpy as np
 import soundfile as sf
 import onnx
@@ -7,7 +6,8 @@ from onnx import numpy_helper
 from tokenizers import Tokenizer
 from collections import defaultdict
 import logging
-
+import pprint
+from dtw import dtw
 # Configure logging for debugging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -25,15 +25,12 @@ class Wav2VecCTCOnnxEngine:
         tokenizer_path: str,
         device: str = "CPU"
     ):
-        logger.debug("Initializing engine with model=%s, tokenizer=%s, device=%s",
-                     onnx_model_path, tokenizer_path, device)
         providers = ["CPUExecutionProvider"] if device.upper() == "CPU" else ["CUDAExecutionProvider", "CPUExecutionProvider"]
         self.session = ort.InferenceSession(onnx_model_path, providers=providers)
         self.onnx_model = onnx.load(onnx_model_path)
 
         # Load tokenizer
         self.tokenizer = Tokenizer.from_file(tokenizer_path)
-        logger.debug("Loaded tokenizer from %s", tokenizer_path)
 
         # IO names
         inputs = self.session.get_inputs()
@@ -53,7 +50,6 @@ class Wav2VecCTCOnnxEngine:
                 break
         if hidden_dim is None:
             raise RuntimeError("Hidden output dimension not found.")
-        logger.debug("Hidden dimension: %d", hidden_dim)
 
         # Determine vocab size V from logits output
         vocab_size = None
@@ -64,18 +60,15 @@ class Wav2VecCTCOnnxEngine:
                 break
         if vocab_size is None:
             raise RuntimeError("Logits output dimension not found.")
-        logger.debug("Vocab size (V): %d", vocab_size)
 
         # Load prototype matrix (lm_head weight) from initializers
         self.prototype_matrix = None
         # Collect all initializer shapes for debugging
         for init in self.onnx_model.graph.initializer:
             arr = numpy_helper.to_array(init)
-            logger.debug("Initializer '%s' shape=%s", init.name, arr.shape)
             # Match (V, hidden_dim)
             if arr.ndim == 2 and arr.shape == (vocab_size, hidden_dim):
                 self.prototype_matrix = arr
-                logger.debug("Selected prototype matrix '%s' with shape %s", init.name, arr.shape)
                 break
         # Fallback: check transposed orientation
         if self.prototype_matrix is None:
@@ -83,16 +76,15 @@ class Wav2VecCTCOnnxEngine:
                 arr = numpy_helper.to_array(init)
                 if arr.ndim == 2 and arr.shape == (hidden_dim, vocab_size):
                     self.prototype_matrix = arr.T
-                    logger.debug("Transposed prototype matrix '%s' from shape %s to %s", init.name, arr.shape, self.prototype_matrix.shape)
                     break
         if self.prototype_matrix is None:
             raise RuntimeError("Prototype matrix not found in any initializer orientation.")
-        logger.debug("Final prototype matrix shape: %s", self.prototype_matrix.shape)
 
     def load_audio(self, file_path: str, target_sr: int = 16000) -> np.ndarray:
         logger.debug("Loading audio: %s", file_path)
         audio, sr = sf.read(file_path)
         logger.debug("Original SR=%d, samples=%d", sr, len(audio))
+        emphasis_value = 0.97
         if sr != target_sr:
             duration = len(audio) / sr
             new_length = int(duration * target_sr)
@@ -102,7 +94,7 @@ class Wav2VecCTCOnnxEngine:
                 audio
             )
             logger.debug("Resampled to %d samples", new_length)
-        emphasized = np.append(audio[0], audio[1:] - 0.97 * audio[:-1])
+        emphasized = np.append(audio[0], audio[1:] - emphasis_value * audio[:-1])
         logger.debug("Applied pre-emphasis, output len=%d", len(emphasized))
         return emphasized.astype(np.float32)
 
@@ -123,23 +115,39 @@ class Wav2VecCTCOnnxEngine:
         logger.debug("Extracted logits shape=%s", logits.shape)
         return logits
 
-    def dtw_align(self, X: np.ndarray, Y: np.ndarray) -> tuple[list[int], list[int]]:
-        logger.debug("DTW align: X_shape=%s, Y_shape=%s", X.shape, Y.shape)
+    def dtw_align(self, X, Y):
         N, M = X.shape[0], Y.shape[0]
         cost = np.linalg.norm(X[:, None, :] - Y[None, :, :], axis=2)
-        D = np.full((N + 1, M + 1), np.inf, dtype=np.float32)
-        D[0, 0] = 0.0
-        for i in range(1, N + 1):
-            for j in range(1, M + 1):
-                D[i, j] = cost[i - 1, j - 1] + min(D[i - 1, j], D[i, j - 1], D[i - 1, j - 1])
-        path_X, path_Y = [], []
+        D = np.full((N+1, M+1), np.inf, dtype=np.float32)
+        D[0,0] = 0.0
+
+        for i in range(1, N+1):
+            for j in range(1, M+1):
+                c = cost[i-1, j-1]
+                # 대각선 (1,1)
+                diag = D[i-1, j-1] + c
+                # 수직 (1,0)
+                vert = D[i-1, j]   + c
+                # 확장 대각 (2,1) – asymmetricP1 특유의 이동
+                if i-2 >= 0:
+                    ext = D[i-2, j-1] + 2*c  # 가중치는 c 또는 2*c 등으로 조정
+                else:
+                    ext = np.inf
+                D[i, j] = min(diag, vert, ext)
+
+        # 경로 역추적은 기존과 동일
         i, j = N, M
-        while i > 0 and j > 0:
-            path_X.insert(0, i - 1)
-            path_Y.insert(0, j - 1)
-            choices = [(D[i - 1, j - 1], i - 1, j - 1), (D[i - 1, j], i - 1, j), (D[i, j - 1], i, j - 1)]
+        path_X, path_Y = [], []
+        while i>0 and j>0:
+            path_X.insert(0, i-1)
+            path_Y.insert(0, j-1)
+            choices = [
+                (D[i-1, j-1], i-1, j-1),
+                (D[i-1, j],   i-1, j),
+            ]
+            if i-2 >= 0:
+                choices.append((D[i-2, j-1], i-2, j-1))
             _, i, j = min(choices, key=lambda x: x[0])
-        logger.debug("DTW path lengths: %d, %d", len(path_X), len(path_Y))
         return path_X, path_Y
 
     def calculate_gop(self, audio_path: str, text: str, eps: float = 1e-8) -> dict:
@@ -183,6 +191,7 @@ class Wav2VecCTCOnnxEngine:
                 score = float(-np.inf)
             tok_scores.append((tok, score))
         logger.debug("Token scores: %s", tok_scores)
+        # pprint.pprint(tok_scores)
 
         # Corrected normalization block
         raw = np.array([s for _, s in tok_scores], dtype=np.float32)
@@ -198,12 +207,17 @@ class Wav2VecCTCOnnxEngine:
 
         words, ct, cs = [], [], []
         for t, sc in norm:
-            if t == "[UNK]":
-                continue
             if t == "|":
+                continue
+            if t == "[UNK]":
+                # '[UNK]' 를 단어 경계로 사용
                 if ct:
-                    words.append({"word": "".join(ct), "scores": {"pronunciation": round(sum(cs) / len(cs))}})
+                    words.append({
+                        "word": "".join(ct),
+                        "scores": {"pronunciation": round(sum(cs)/len(cs))}
+                    })
                 ct, cs = [], []
+                continue
             else:
                 ct.append(t)
                 cs.append(sc)

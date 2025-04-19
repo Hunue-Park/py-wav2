@@ -58,11 +58,11 @@ def main(args):
     # 1. 오디오 파일과 정답 텍스트 로드
     try:
         print("1. 오디오 및 텍스트 파일 로드 중...")
-        audio = load_audio_file(args.audio_file)
+        # audio = load_audio_file(args.audio_file)
         transcript = load_transcript(args.transcript_file)
         
         
-        print(f"   - 오디오 파일: {args.audio_file} ({len(audio)/16000:.2f}초)")
+        # print(f"   - 오디오 파일: {args.audio_file} ({len(audio)/16000:.2f}초)")
         print(f"   - 정답 텍스트: '{transcript}'")
     except Exception as e:
         logger.error(f"파일 로드 실패: {e}")
