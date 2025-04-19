@@ -9,23 +9,51 @@ from g2pk import G2p  # 한국어 g2p 라이브러리
 from dtw import dtw
 
 from data_processing import load_audio_file, load_transcript
-from w2v_engine import Wav2VecCTCEngine
-from transformers import Wav2Vec2CTCTokenizer
+from w2v_onnx_engine import Wav2VecCTCOnnxEngine
+from transformers import AutoTokenizer
 import pprint
 import time
+from tokenizers import Tokenizer, models, pre_tokenizers, decoders
+
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# 1) vocab + added_tokens 합치기 (원본 그대로)
+# with open("./env/fine-tuned-wav2vec2-kspon/vocab.json", "r", encoding="utf-8") as f:
+#     vocab = json.load(f)
+# with open("./env/fine-tuned-wav2vec2-kspon/added_tokens.json", "r", encoding="utf-8") as f:
+#     added = json.load(f)
+# vocab.update(added)
+
+# # 2) WordLevel 모델 생성 (UNK 지정)
+# wordlevel = models.WordLevel(vocab=vocab, unk_token="[UNK]")
+
+# # 3) 한 글자씩 분절하도록 pre_tokenizer 교체
+# tok = Tokenizer(wordlevel)
+# # (이게 핵심!) Whitespace 대신 빈 문자열 패턴으로 문자 분절
+# tok.pre_tokenizer = pre_tokenizers.Split(pattern="", behavior="isolated")
+
+# # 4) 패딩 토큰 설정
+# tok.enable_padding(pad_id=vocab["[PAD]"], pad_token="[PAD]")
+
+# # 5) JSON으로 저장
+# tok.save("./env/fine-tuned-wav2vec2-kspon/tokenizer.json")
+
+
 def main(args):
     print("\n===== 한국어 발음 평가 시스템 (기본형) =====\n")
 
-    tokenizer = Wav2Vec2CTCTokenizer(
-                    "./env/fine-tuned-wav2vec2-kspon/vocab.json",
-                    unk_token="[UNK]",
-                    pad_token="[PAD]",
-                    word_delimiter_token=" "
-                )  # :contentReference[oaicite:4]{index=4}
+    # tokenizer = Tokenizer.from_pretrained("kresnik/wav2vec2-large-xlsr-korean")
+    # tokenizer.save("tokenizer.json")
+
+    # tokenizer = Wav2Vec2CTCTokenizer(
+    #                 "./env/fine-tuned-wav2vec2-kspon/vocab.json",
+    #                 unk_token="[UNK]",
+    #                 pad_token="[PAD]",
+    #                 word_delimiter_token=" "
+    #             )  # :contentReference[oaicite:4]{index=4}
+    # use_fast=True 로 Rust/C++ 백엔드 로딩을 보장
     
     # 1. 오디오 파일과 정답 텍스트 로드
     try:
@@ -43,9 +71,6 @@ def main(args):
     # 2. 한국어 발음 변환 (G2P) - 음절 단위 유지
     try:
         print("\n2. 정답 텍스트 발음 변환 중...")
-        syllable_tokens = tokens = tokenizer.tokenize(transcript)
-        
-        print(f"   - 음절 시퀀스: {syllable_tokens} ({len(syllable_tokens)}개 음절)")
     except Exception as e:
         logger.error(f"G2P 변환 실패: {e}")
         return
@@ -53,10 +78,8 @@ def main(args):
     # 3. 모델 로드 및 확률 분포 획득
     try:
         print("\n3. 음성 인식 모델 로드 및 확률 분포 계산 중...")
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        print(f"   - 사용 장치: {device}")
         
-        w2v_engine = Wav2VecCTCEngine.get_instance(model_name=args.model_name, device=device)
+        w2v_engine = Wav2VecCTCOnnxEngine(onnx_model_path='./env/wav2vec2_ctc_quantized.onnx', tokenizer_path='./env/fine-tuned-wav2vec2-kspon/tokenizer.json')
         
     except Exception as e:
         logger.error(f"모델 예측 실패: {e}")
@@ -80,15 +103,15 @@ def main(args):
     gop_scores = w2v_engine.calculate_gop(args.audio_file, transcript)
     elapsed = time.time() - start_time
     print(f"Single run elapsed time: {elapsed:.3f} seconds")    
-    # pprint.pprint(gop_scores)
+    pprint.pprint(gop_scores)
     
     
     
     
     # 6. 최종 결과 계산 및 출력
     print("\n===== 발음 평가 최종 결과 =====")
-    result = w2v_engine.format_gop_as_response(gop_scores)
-    pprint.pprint(result)
+    # result = w2v_engine.format_gop_as_response(gop_scores)
+    # pprint.pprint(result)
     
     # 전체 평균 점수
     
