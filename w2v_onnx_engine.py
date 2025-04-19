@@ -150,10 +150,16 @@ class Wav2VecCTCOnnxEngine:
 
     def calculate_gop(self, audio_path: str, text: str, eps: float = 1e-8) -> dict:
         logger.debug("Calculating GOP for text: %s", text)
+        temperature = 1
         audio = self.load_audio(audio_path)
+        # 1) logits 추출
         logits = self.extract_logits(audio)
 
-        exp_logits = np.exp(logits - logits.max(axis=1, keepdims=True))
+        # 2) Temperature scaling
+        scaled = logits / temperature
+
+        # 3) 안정화된 softmax
+        exp_logits = np.exp(scaled - scaled.max(axis=1, keepdims=True))
         probs = exp_logits / exp_logits.sum(axis=1, keepdims=True)
         logger.debug("Computed probabilities shape=%s", probs.shape)
 
