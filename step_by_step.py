@@ -4,7 +4,9 @@ import logging
 
 from data_processing import load_audio_file, load_transcript
 from w2v_onnx_engine import Wav2VecCTCOnnxEngine
+from w2v_engine import Wav2VecCTCEngine
 import pprint
+
 import time
 
 # 로깅 설정
@@ -71,14 +73,15 @@ def main(args):
     try:
         print("\n3. 음성 인식 모델 로드 및 확률 분포 계산 중...")
         
-        w2v_engine = Wav2VecCTCOnnxEngine(onnx_model_path='./env/wav2vec2_ctc_quantized.onnx', tokenizer_path='./env/fine-tuned-wav2vec2-kspon/tokenizer.json')
+        w2v_engine = Wav2VecCTCOnnxEngine(onnx_model_path='./env/wav2vec2_ctc_dynamic.onnx', tokenizer_path='./env/fine-tuned-wav2vec2-kspon/tokenizer.json')
+        # w2v_real_engine = Wav2VecCTCEngine.get_instance(model_name='./env/fine-tuned-wav2vec2-kspon')
         
     except Exception as e:
         logger.error(f"모델 예측 실패: {e}")
         print(f"오류 세부 정보: {str(e)}")
         return
     
-    # 4. 음절별 프레임 정렬 (진짜 DTW 방식)
+    # 4. 음절별 프레임 정렬 (진짜 DTW 방식)갑
     try:
         print("\n4. 음절별 프레임 정렬 중...")
         
@@ -94,16 +97,19 @@ def main(args):
     start_time = time.time()
     gop_scores = w2v_engine.calculate_gop(args.audio_file, transcript)
     elapsed = time.time() - start_time
-    print(f"Single run elapsed time: {elapsed:.3f} seconds")    
     pprint.pprint(gop_scores)
+    # gop_scores = w2v_real_engine.calculate_gop(args.audio_file, transcript)
+    print(f"Single run elapsed time: {elapsed:.3f} seconds")    
+    # result = w2v_real_engine.format_gop_as_response(gop_scores)
+    # pprint.pprint(result)
     
     
     
     
     # 6. 최종 결과 계산 및 출력
     print("\n===== 발음 평가 최종 결과 =====")
-    # result = w2v_engine.format_gop_as_response(gop_scores)
-    # pprint.pprint(result)
+    # transcribed = w2v_engine.transcribe(args.audio_file)
+    # print(f"   - 인식된 텍스트: '{transcribed}'")
     
     # 전체 평균 점수
     
