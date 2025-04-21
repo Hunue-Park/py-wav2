@@ -108,8 +108,8 @@ def evaluate_cases():
                 results_list.append(result)
                 
                 # 개별 결과 저장
-                with open(output_dir / f"{category}_{pcm_file.stem}_result.json", 'w', encoding='utf-8') as f:
-                    json.dump(result, f, ensure_ascii=False, indent=2)
+                # with open(output_dir / f"{category}_{pcm_file.stem}_result.json", 'w', encoding='utf-8') as f:
+                #     json.dump(result, f, ensure_ascii=False, indent=2)
                     
             except Exception as e:
                 print(f"처리 실패: {pcm_file} - {e}")

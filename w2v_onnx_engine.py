@@ -209,10 +209,11 @@ class Wav2VecCTCOnnxEngine:
             if t == "[UNK]":
                 continue
             if t == "|":
+                pronounciation_score = round(sum(cs) / len(cs))
                 if ct:
                     words.append({
                         "word": "".join(ct),
-                        "scores": {"pronunciation": round(sum(cs) / len(cs))}
+                        "scores": {"pronunciation": pronounciation_score}
                     })
                 ct, cs = [], []
             else:
@@ -221,7 +222,7 @@ class Wav2VecCTCOnnxEngine:
         if ct:
             words.append({
                 "word": "".join(ct),
-                "scores": {"pronunciation": round(sum(cs) / len(cs))}
+                "scores": {"pronunciation": pronounciation_score}
             })
 
         overall = (

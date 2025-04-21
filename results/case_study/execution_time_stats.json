@@ -1,8 +1,8 @@
 {
-  "overall_average_time": 0.37779803276062013,
-  "correct_cases_average_time": 0.45975399017333984,
-  "wrong_cases_average_time": 0.2958420753479004,
+  "overall_average_time": 0.3743052840232849,
+  "correct_cases_average_time": 0.45400052070617675,
+  "wrong_cases_average_time": 0.2946100473403931,
   "total_files_processed": 20,
-  "min_time": 0.0994112491607666,
-  "max_time": 1.1051199436187744
+  "min_time": 0.0997459888458252,
+  "max_time": 1.054198980331421
 }
