@@ -31,5 +31,6 @@
       }
     ]
   },
-  "category": "wrong"
+  "category": "wrong",
+  "execution_time": 0.3508329391479492
 }

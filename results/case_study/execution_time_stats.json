@@ -1,0 +1,8 @@
+{
+  "overall_average_time": 0.37779803276062013,
+  "correct_cases_average_time": 0.45975399017333984,
+  "wrong_cases_average_time": 0.2958420753479004,
+  "total_files_processed": 20,
+  "min_time": 0.0994112491607666,
+  "max_time": 1.1051199436187744
+}

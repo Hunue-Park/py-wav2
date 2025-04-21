@@ -97,5 +97,6 @@
       }
     ]
   },
-  "category": "wrong"
+  "category": "wrong",
+  "execution_time": 0.5181312561035156
 }

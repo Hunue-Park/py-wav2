@@ -67,5 +67,6 @@
       }
     ]
   },
-  "category": "correct"
+  "category": "correct",
+  "execution_time": 0.8639349937438965
 }

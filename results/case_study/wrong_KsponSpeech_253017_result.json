@@ -55,5 +55,6 @@
       }
     ]
   },
-  "category": "wrong"
+  "category": "wrong",
+  "execution_time": 0.48165297508239746
 }

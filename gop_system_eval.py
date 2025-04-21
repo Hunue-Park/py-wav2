@@ -8,6 +8,7 @@ from w2v_onnx_engine import Wav2VecCTCOnnxEngine
 import soundfile as sf
 from tqdm import tqdm
 import wave
+import time
 
 # 기존 gop_system_eval.py의 함수 재사용
 def read_pcm_file(file_path, sample_width=2, channels=1, sample_rate=16000):
@@ -66,8 +67,12 @@ def evaluate_cases():
     correct_results = []
     wrong_results = []
     
+    # 실행 시간 저장 리스트
+    correct_times = []
+    wrong_times = []
+    
     # 평가 함수
-    def evaluate_dir(dir_path, results_list, category):
+    def evaluate_dir(dir_path, results_list, times_list, category):
         pcm_files = sorted(dir_path.glob("*.pcm"))
         
         for pcm_file in tqdm(pcm_files, desc=f"{category} 케이스 평가 중"):
@@ -85,15 +90,20 @@ def evaluate_cases():
                 audio, sr = read_pcm_file(pcm_file)
                 sf.write(temp_wav, audio, sr)
                 
-                # GOP 계산
+                # GOP 계산 시간 측정 시작
+                start_time = time.time()
                 gop_result = engine.calculate_gop(str(temp_wav), text)
+                end_time = time.time()
+                execution_time = end_time - start_time
+                times_list.append(execution_time)
                 
                 # 결과 저장
                 result = {
                     "file": pcm_file.name,
                     "text": text,
                     "gop": gop_result,
-                    "category": category
+                    "category": category,
+                    "execution_time": execution_time
                 }
                 results_list.append(result)
                 
@@ -108,8 +118,29 @@ def evaluate_cases():
                     temp_wav.unlink()
     
     # 두 디렉토리 평가
-    evaluate_dir(correct_dir, correct_results, "correct")
-    evaluate_dir(wrong_dir, wrong_results, "wrong")
+    evaluate_dir(correct_dir, correct_results, correct_times, "correct")
+    evaluate_dir(wrong_dir, wrong_results, wrong_times, "wrong")
+    
+    # 실행 시간 통계
+    all_times = correct_times + wrong_times
+    
+    if all_times:
+        avg_time = np.mean(all_times)
+        correct_avg_time = np.mean(correct_times) if correct_times else 0
+        wrong_avg_time = np.mean(wrong_times) if wrong_times else 0
+        
+        time_stats = {
+            "overall_average_time": float(avg_time),
+            "correct_cases_average_time": float(correct_avg_time),
+            "wrong_cases_average_time": float(wrong_avg_time),
+            "total_files_processed": len(all_times),
+            "min_time": float(min(all_times)),
+            "max_time": float(max(all_times))
+        }
+        
+        # 시간 통계 저장
+        with open(output_dir / "execution_time_stats.json", 'w', encoding='utf-8') as f:
+            json.dump(time_stats, f, ensure_ascii=False, indent=2)
     
     # 결과 분석
     if correct_results and wrong_results:
@@ -126,14 +157,17 @@ def evaluate_cases():
                 "average_score": float(correct_avg),
                 "min_score": float(min(correct_scores)),
                 "max_score": float(max(correct_scores)),
+                "average_execution_time": float(correct_avg_time) if correct_times else 0
             },
             "wrong_cases": {
                 "count": len(wrong_results),
                 "average_score": float(wrong_avg),
                 "min_score": float(min(wrong_scores)),
                 "max_score": float(max(wrong_scores)),
+                "average_execution_time": float(wrong_avg_time) if wrong_times else 0
             },
-            "score_difference": float(correct_avg - wrong_avg)
+            "score_difference": float(correct_avg - wrong_avg),
+            "overall_average_execution_time": float(avg_time) if all_times else 0
         }
         
         # 요약 저장
@@ -152,6 +186,11 @@ def evaluate_cases():
         print(f"- 정확한 발음 케이스: {len(correct_results)}개, 평균 점수: {correct_avg:.2f}")
         print(f"- 틀린 발음 케이스: {len(wrong_results)}개, 평균 점수: {wrong_avg:.2f}")
         print(f"- 점수 차이: {correct_avg - wrong_avg:.2f}")
+        print(f"실행 시간 통계:")
+        print(f"- 전체 평균 실행 시간: {avg_time:.4f}초")
+        print(f"- 정확한 발음 케이스 평균 실행 시간: {correct_avg_time:.4f}초")
+        print(f"- 틀린 발음 케이스 평균 실행 시간: {wrong_avg_time:.4f}초")
+        print(f"- 최소 실행 시간: {min(all_times):.4f}초, 최대 실행 시간: {max(all_times):.4f}초")
 
 if __name__ == "__main__":
     evaluate_cases()
