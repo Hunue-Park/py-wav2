@@ -27,7 +27,7 @@ def compare_logits(ids_pt, ids_onx, special, slice_start=100, slice_end=150):
     print(f"ONNX argmax[{slice_start}:{slice_end}] =", ids_onx[slice_start:slice_end].tolist())
 
 def main():
-    audio_path = "./hello_in_dinner.wav"
+    audio_path = "./recordings/recorded_audio_1.wav"
     processor = Wav2Vec2Processor.from_pretrained("./env/fine-tuned-wav2vec2-kspon")
     model     = Wav2Vec2ForCTC.from_pretrained("./env/fine-tuned-wav2vec2-kspon")
     model.eval().cpu()
