@@ -1,0 +1,35 @@
+{
+  "file": "KsponSpeech_253019.pcm",
+  "text": "o/ 아무래도 그렇지. 이번에는 그렇지 b/",
+  "gop": {
+    "overall": 15.2,
+    "pronunciation": 15.2,
+    "words": [
+      {
+        "word": "아무래도",
+        "scores": {
+          "pronunciation": 20
+        }
+      },
+      {
+        "word": "그렇지",
+        "scores": {
+          "pronunciation": 9
+        }
+      },
+      {
+        "word": "이번에는",
+        "scores": {
+          "pronunciation": 19
+        }
+      },
+      {
+        "word": "그렇지",
+        "scores": {
+          "pronunciation": 13
+        }
+      }
+    ]
+  },
+  "category": "wrong"
+}

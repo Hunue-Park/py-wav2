@@ -1,0 +1,15 @@
+{
+  "correct_cases": {
+    "count": 10,
+    "average_score": 39.59,
+    "min_score": 15.0,
+    "max_score": 58.9
+  },
+  "wrong_cases": {
+    "count": 10,
+    "average_score": 23.72,
+    "min_score": 12.3,
+    "max_score": 46.1
+  },
+  "score_difference": 15.870000000000005
+}

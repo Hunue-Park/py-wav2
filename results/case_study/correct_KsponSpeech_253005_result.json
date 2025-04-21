@@ -1,0 +1,41 @@
+{
+  "file": "KsponSpeech_253005.pcm",
+  "text": "너 와인 안 가져올 거야?",
+  "gop": {
+    "overall": 37.6,
+    "pronunciation": 37.6,
+    "words": [
+      {
+        "word": "너",
+        "scores": {
+          "pronunciation": 26
+        }
+      },
+      {
+        "word": "와인",
+        "scores": {
+          "pronunciation": 2
+        }
+      },
+      {
+        "word": "안",
+        "scores": {
+          "pronunciation": 59
+        }
+      },
+      {
+        "word": "가져올",
+        "scores": {
+          "pronunciation": 80
+        }
+      },
+      {
+        "word": "거야",
+        "scores": {
+          "pronunciation": 21
+        }
+      }
+    ]
+  },
+  "category": "correct"
+}

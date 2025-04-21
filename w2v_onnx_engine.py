@@ -134,49 +134,11 @@ class Wav2VecCTCOnnxEngine:
         tensor = torch.from_numpy(audio).unsqueeze(0)  # shape: [1, T], dtype=torch.float32
         return tensor
 
-
-    def load_audio(self, file_path: str, target_sr: int = 16000) -> np.ndarray:
-        logger.debug("Loading audio: %s", file_path)
-        audio, sr = sf.read(file_path)
-        logger.debug("Original SR=%d, samples=%d", sr, len(audio))
-        emphasis_value = 0.97
-        if sr != target_sr:
-            duration = len(audio) / sr
-            new_length = int(duration * target_sr)
-            audio = np.interp(
-                np.linspace(0.0, duration, new_length, endpoint=False),
-                np.linspace(0.0, duration, len(audio), endpoint=False),
-                audio
-            )
-            logger.debug("Resampled to %d samples", new_length)
-        emphasized = np.append(audio[0], audio[1:] - emphasis_value * audio[:-1])
-        logger.debug("Applied pre-emphasis, output len=%d", len(emphasized))
-        return emphasized.astype(np.float32)
-
-    def _infer(self, audio: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        logger.debug("Running inference on audio len=%d", len(audio))
-        batch = audio[np.newaxis, :]
-        hidden, logits = self.session.run([self.hidden_name, self.logits_name], {self.input_name: batch})
-        logger.debug("Inference outputs: hidden=%s, logits=%s", hidden.shape, logits.shape)
-        return hidden[0], logits[0]
-
-    def extract_embedding(self, audio: np.ndarray) -> np.ndarray:
-        hidden, _ = self._infer(audio)
-        logger.debug("Extracted embedding shape=%s", hidden.shape)
-        return hidden
-
-    def extract_logits(self, audio: np.ndarray) -> np.ndarray:
-        _, logits = self._infer(audio)
-        logger.debug("Extracted logits shape=%s", logits.shape)
-        return logits
-
     def dtw_align(self, X, Y):
         alignment = dtw(X, Y, keep_internals=True, step_pattern="asymmetricP1")
         return alignment.index1, alignment.index2
 
     def calculate_gop(self, audio_path: str, text: str, eps: float = 1e-8) -> dict:
-        logger.debug("Calculating GOP for text: %s", text)
-        temperature = 1
 
         # 1) load & preprocess → [1, T], float32 torch.Tensor
         values = self.load_and_preprocess(audio_path)      # torch.Tensor [1,T]
@@ -195,17 +157,14 @@ class Wav2VecCTCOnnxEngine:
         scaled     = logits
         exp_logits = np.exp(scaled - scaled.max(axis=1, keepdims=True))
         probs      = exp_logits / exp_logits.sum(axis=1, keepdims=True)
-        logger.debug("Computed probabilities shape=%s", probs.shape)
 
         # 4) tokenize
         text = text.replace(" ", "|")
         token_ids = self.tokenizer.encode(text).ids
-        logger.debug("Token IDs: %s", token_ids)
 
         V = self.prototype_matrix.shape[0]
         blank_id = self.tokenizer.token_to_id("|")
         safe_ids = [tid if 0 <= tid < V else blank_id for tid in token_ids]
-        logger.debug("Safe token IDs: %s", safe_ids)
 
         # 5) expand prototypes & DTW
         proto = self.prototype_matrix[safe_ids]  # (M, D)
@@ -219,7 +178,6 @@ class Wav2VecCTCOnnxEngine:
         frames = defaultdict(list)
         for f, t in zip(pX, pY):
             frames[t].append(f)
-        logger.debug("Frames per token: %s", {k: len(v) for k, v in frames.items()})
 
         # 7) per‐token log‐prob scores
         tok_scores = []
@@ -232,7 +190,6 @@ class Wav2VecCTCOnnxEngine:
             else:
                 score = float(-np.inf)
             tok_scores.append((tok, score))
-        logger.debug("Token scores: %s", tok_scores)
 
         # 8) normalize to [0,100]
         raw  = np.array([s for _, s in tok_scores], dtype=np.float32)
@@ -245,7 +202,6 @@ class Wav2VecCTCOnnxEngine:
                     for t, s in tok_scores]
         else:
             norm = [(t, 0.0) for t, _ in tok_scores]
-        logger.debug("Normalized scores: %s", norm)
 
         # 9) group into words
         words, ct, cs = [], [], []
@@ -272,7 +228,6 @@ class Wav2VecCTCOnnxEngine:
             round(sum(w["scores"]["pronunciation"] for w in words) / len(words), 1)
             if words else 0.0
         )
-        logger.debug("Final GOP overall=%.1f", overall)
         return {"overall": overall, "pronunciation": overall, "words": words}
 
     def transcribe(self, audio_path: str, raw_ids: list) -> str:

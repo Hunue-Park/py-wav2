@@ -1,0 +1,17 @@
+{
+  "file": "KsponSpeech_253008.pcm",
+  "text": "기대되니? l/",
+  "gop": {
+    "overall": 15.0,
+    "pronunciation": 15.0,
+    "words": [
+      {
+        "word": "기대되니",
+        "scores": {
+          "pronunciation": 15
+        }
+      }
+    ]
+  },
+  "category": "correct"
+}

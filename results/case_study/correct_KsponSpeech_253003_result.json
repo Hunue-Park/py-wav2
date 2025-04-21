@@ -1,0 +1,179 @@
+{
+  "file": "KsponSpeech_253003.pcm",
+  "text": "캐리어가 있다 했잖아. 갑자기 캐리어를 이렇게 들어. b/ 그 큰 캐리어를 들고서 b/ 내가 이제/ 짜증이 나가지고 나도 일어서는 내가 내리는 역이 아닌 데도 일어서서 나갈 쳐 나가는 척을 했어. b/",
+  "gop": {
+    "overall": 58.9,
+    "pronunciation": 58.9,
+    "words": [
+      {
+        "word": "캐리어가",
+        "scores": {
+          "pronunciation": 31
+        }
+      },
+      {
+        "word": "있다",
+        "scores": {
+          "pronunciation": 12
+        }
+      },
+      {
+        "word": "했잖아",
+        "scores": {
+          "pronunciation": 53
+        }
+      },
+      {
+        "word": "갑자기",
+        "scores": {
+          "pronunciation": 76
+        }
+      },
+      {
+        "word": "캐리어를",
+        "scores": {
+          "pronunciation": 60
+        }
+      },
+      {
+        "word": "이렇게",
+        "scores": {
+          "pronunciation": 78
+        }
+      },
+      {
+        "word": "들어",
+        "scores": {
+          "pronunciation": 36
+        }
+      },
+      {
+        "word": "그",
+        "scores": {
+          "pronunciation": 88
+        }
+      },
+      {
+        "word": "큰",
+        "scores": {
+          "pronunciation": 77
+        }
+      },
+      {
+        "word": "캐리어를",
+        "scores": {
+          "pronunciation": 59
+        }
+      },
+      {
+        "word": "들고서",
+        "scores": {
+          "pronunciation": 50
+        }
+      },
+      {
+        "word": "내가",
+        "scores": {
+          "pronunciation": 83
+        }
+      },
+      {
+        "word": "이제",
+        "scores": {
+          "pronunciation": 69
+        }
+      },
+      {
+        "word": "짜증이",
+        "scores": {
+          "pronunciation": 35
+        }
+      },
+      {
+        "word": "나가지고",
+        "scores": {
+          "pronunciation": 69
+        }
+      },
+      {
+        "word": "나도",
+        "scores": {
+          "pronunciation": 84
+        }
+      },
+      {
+        "word": "일어서는",
+        "scores": {
+          "pronunciation": 66
+        }
+      },
+      {
+        "word": "내가",
+        "scores": {
+          "pronunciation": 75
+        }
+      },
+      {
+        "word": "내리는",
+        "scores": {
+          "pronunciation": 53
+        }
+      },
+      {
+        "word": "역이",
+        "scores": {
+          "pronunciation": 42
+        }
+      },
+      {
+        "word": "아닌",
+        "scores": {
+          "pronunciation": 65
+        }
+      },
+      {
+        "word": "데도",
+        "scores": {
+          "pronunciation": 62
+        }
+      },
+      {
+        "word": "일어서서",
+        "scores": {
+          "pronunciation": 69
+        }
+      },
+      {
+        "word": "나갈",
+        "scores": {
+          "pronunciation": 53
+        }
+      },
+      {
+        "word": "쳐",
+        "scores": {
+          "pronunciation": 52
+        }
+      },
+      {
+        "word": "나가는",
+        "scores": {
+          "pronunciation": 45
+        }
+      },
+      {
+        "word": "척을",
+        "scores": {
+          "pronunciation": 50
+        }
+      },
+      {
+        "word": "했어",
+        "scores": {
+          "pronunciation": 57
+        }
+      }
+    ]
+  },
+  "category": "correct"
+}

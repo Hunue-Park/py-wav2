@@ -1,0 +1,41 @@
+{
+  "file": "KsponSpeech_253016.pcm",
+  "text": "미용실에 가는 빈도를 한번 줄여보자",
+  "gop": {
+    "overall": 19.6,
+    "pronunciation": 19.6,
+    "words": [
+      {
+        "word": "미용실에",
+        "scores": {
+          "pronunciation": 20
+        }
+      },
+      {
+        "word": "가는",
+        "scores": {
+          "pronunciation": 29
+        }
+      },
+      {
+        "word": "빈도를",
+        "scores": {
+          "pronunciation": 20
+        }
+      },
+      {
+        "word": "한번",
+        "scores": {
+          "pronunciation": 23
+        }
+      },
+      {
+        "word": "줄여보자",
+        "scores": {
+          "pronunciation": 6
+        }
+      }
+    ]
+  },
+  "category": "wrong"
+}

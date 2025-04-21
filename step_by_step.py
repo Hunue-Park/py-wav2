@@ -37,17 +37,6 @@ logger = logging.getLogger(__name__)
 
 def main(args):
     print("\n===== 한국어 발음 평가 시스템 (기본형) =====\n")
-
-    # tokenizer = Tokenizer.from_pretrained("kresnik/wav2vec2-large-xlsr-korean")
-    # tokenizer.save("tokenizer.json")
-
-    # tokenizer = Wav2Vec2CTCTokenizer(
-    #                 "./env/fine-tuned-wav2vec2-kspon/vocab.json",
-    #                 unk_token="[UNK]",
-    #                 pad_token="[PAD]",
-    #                 word_delimiter_token=" "
-    #             )  # :contentReference[oaicite:4]{index=4}
-    # use_fast=True 로 Rust/C++ 백엔드 로딩을 보장
     
     # 1. 오디오 파일과 정답 텍스트 로드
     try:

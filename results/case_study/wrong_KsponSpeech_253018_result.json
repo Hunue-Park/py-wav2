@@ -1,0 +1,53 @@
+{
+  "file": "KsponSpeech_253018.pcm",
+  "text": "(1시간)/(한 시간) 보다 큰 시간이 들것만 같다.",
+  "gop": {
+    "overall": 32.0,
+    "pronunciation": 32.0,
+    "words": [
+      {
+        "word": "시간한",
+        "scores": {
+          "pronunciation": 59
+        }
+      },
+      {
+        "word": "시간",
+        "scores": {
+          "pronunciation": 88
+        }
+      },
+      {
+        "word": "보다",
+        "scores": {
+          "pronunciation": 42
+        }
+      },
+      {
+        "word": "큰",
+        "scores": {
+          "pronunciation": 0
+        }
+      },
+      {
+        "word": "시간이",
+        "scores": {
+          "pronunciation": 20
+        }
+      },
+      {
+        "word": "들것만",
+        "scores": {
+          "pronunciation": 12
+        }
+      },
+      {
+        "word": "같다",
+        "scores": {
+          "pronunciation": 3
+        }
+      }
+    ]
+  },
+  "category": "wrong"
+}

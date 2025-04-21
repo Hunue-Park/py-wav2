@@ -1,0 +1,77 @@
+{
+  "file": "KsponSpeech_253004.pcm",
+  "text": "훨씬 많이 받는 거지. 시간 당 만 원 넘게 받는 거니니까",
+  "gop": {
+    "overall": 58.1,
+    "pronunciation": 58.1,
+    "words": [
+      {
+        "word": "훨씬",
+        "scores": {
+          "pronunciation": 1
+        }
+      },
+      {
+        "word": "많이",
+        "scores": {
+          "pronunciation": 25
+        }
+      },
+      {
+        "word": "받는",
+        "scores": {
+          "pronunciation": 42
+        }
+      },
+      {
+        "word": "거지",
+        "scores": {
+          "pronunciation": 69
+        }
+      },
+      {
+        "word": "시간",
+        "scores": {
+          "pronunciation": 95
+        }
+      },
+      {
+        "word": "당",
+        "scores": {
+          "pronunciation": 99
+        }
+      },
+      {
+        "word": "만",
+        "scores": {
+          "pronunciation": 88
+        }
+      },
+      {
+        "word": "원",
+        "scores": {
+          "pronunciation": 95
+        }
+      },
+      {
+        "word": "넘게",
+        "scores": {
+          "pronunciation": 53
+        }
+      },
+      {
+        "word": "받는",
+        "scores": {
+          "pronunciation": 48
+        }
+      },
+      {
+        "word": "거니니까",
+        "scores": {
+          "pronunciation": 24
+        }
+      }
+    ]
+  },
+  "category": "correct"
+}

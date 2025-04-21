@@ -1,0 +1,29 @@
+{
+  "file": "KsponSpeech_253013.pcm",
+  "text": "와 정말 멋지구나",
+  "gop": {
+    "overall": 12.3,
+    "pronunciation": 12.3,
+    "words": [
+      {
+        "word": "와",
+        "scores": {
+          "pronunciation": 22
+        }
+      },
+      {
+        "word": "정말",
+        "scores": {
+          "pronunciation": 2
+        }
+      },
+      {
+        "word": "멋지구나",
+        "scores": {
+          "pronunciation": 13
+        }
+      }
+    ]
+  },
+  "category": "wrong"
+}

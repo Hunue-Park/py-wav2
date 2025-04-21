@@ -1,0 +1,95 @@
+{
+  "file": "KsponSpeech_253006.pcm",
+  "text": "(10)/(십)분 만에 씻고, 밥 먹고, 양치하고 집에서 (40분)/(사십 분)에 나왔거든. (7시)/(일곱 시) (40분)/(사십 분)에 b/",
+  "gop": {
+    "overall": 41.1,
+    "pronunciation": 41.1,
+    "words": [
+      {
+        "word": "십분",
+        "scores": {
+          "pronunciation": 76
+        }
+      },
+      {
+        "word": "만에",
+        "scores": {
+          "pronunciation": 85
+        }
+      },
+      {
+        "word": "씻고",
+        "scores": {
+          "pronunciation": 42
+        }
+      },
+      {
+        "word": "밥",
+        "scores": {
+          "pronunciation": 0
+        }
+      },
+      {
+        "word": "먹고",
+        "scores": {
+          "pronunciation": 17
+        }
+      },
+      {
+        "word": "양치하고",
+        "scores": {
+          "pronunciation": 16
+        }
+      },
+      {
+        "word": "집에서",
+        "scores": {
+          "pronunciation": 32
+        }
+      },
+      {
+        "word": "분사십",
+        "scores": {
+          "pronunciation": 31
+        }
+      },
+      {
+        "word": "분에",
+        "scores": {
+          "pronunciation": 40
+        }
+      },
+      {
+        "word": "나왔거든",
+        "scores": {
+          "pronunciation": 18
+        }
+      },
+      {
+        "word": "시일곱",
+        "scores": {
+          "pronunciation": 46
+        }
+      },
+      {
+        "word": "시",
+        "scores": {
+          "pronunciation": 23
+        }
+      },
+      {
+        "word": "분사십",
+        "scores": {
+          "pronunciation": 77
+        }
+      },
+      {
+        "word": "분에",
+        "scores": {
+          "pronunciation": 72
+        }
+      }
+    ]
+  },
+  "category": "correct"
+}
