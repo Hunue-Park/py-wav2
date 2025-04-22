@@ -218,7 +218,7 @@ def main():
         onnx_model_path=MODEL_PATH,
         tokenizer_path=TOKENIZER_PATH,
         confidence_threshold=0.6,  # 약간 낮은 임계값 설정
-        update_interval=0.5  # 0.5초 간격으로 틱 이벤트
+        update_interval=0.3  # 0.5초 간격으로 틱 이벤트
     )
     print("엔진 초기화 완료!")
     

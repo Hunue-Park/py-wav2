@@ -251,6 +251,9 @@ class AudioProcessor:
         Returns:
             torch.Tensor: 처리된 오디오 텐서 [1, T]
         """
+        # VAD 검사 - 음성이 없으면 None 반환
+        if not self._detect_voice_activity(chunk):
+            return None
         # 1) 모노화 (이미 모노인 경우 건너뜀)
         if chunk.ndim > 1:
             chunk = np.mean(chunk, axis=1)
@@ -268,6 +271,41 @@ class AudioProcessor:
         tensor = torch.from_numpy(chunk).unsqueeze(0)  # shape: [1, T]
         
         return tensor
+    
+    def _detect_voice_activity(self, audio_data: np.ndarray, 
+                            energy_threshold: float = 0.0005,
+                            min_speech_frames: int = 50) -> bool:
+        """
+        간단한 에너지 기반 VAD 구현
+        
+        Args:
+            audio_data: 오디오 데이터 (numpy 배열)
+            energy_threshold: 음성으로 판단할 에너지 임계값
+            min_speech_frames: 음성으로 판단할 최소 프레임 수
+            
+        Returns:
+            bool: 음성이 있는지 여부
+        """
+        # 모노 데이터로 변환
+        if audio_data.ndim > 1:
+            audio_data = np.mean(audio_data, axis=1)
+            
+        # 프레임 단위로 분할 (10ms 프레임)
+        frame_size = int(self.sample_rate * 0.01)
+        frames = [audio_data[i:i+frame_size] for i in range(0, len(audio_data), frame_size)]
+        
+        # 각 프레임의 에너지 계산
+        energies = [np.sum(frame**2) / len(frame) for frame in frames if len(frame) == frame_size]
+        
+        # 임계값을 넘는 프레임 수 계산
+        speech_frames = sum(1 for energy in energies if energy > energy_threshold)
+        
+        # 로깅 (디버깅용)
+        avg_energy = np.mean(energies) if energies else 0
+        logger.debug(f"VAD: 평균 에너지={avg_energy:.6f}, 음성 프레임={speech_frames}/{len(energies)}")
+        
+        # 임계값을 넘는 프레임이 충분한지 확인
+        return speech_frames >= min_speech_frames
         
     def get_latest_chunk(self) -> Tuple[Optional[torch.Tensor], Dict[str, Any]]:
         """
