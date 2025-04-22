@@ -4,11 +4,12 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from w2v_onnx_engine import Wav2VecCTCOnnxEngine
+# from w2v_onnx_engine import Wav2VecCTCOnnxEngine
 import soundfile as sf
 from tqdm import tqdm
 import wave
 import time
+from wav2vec_cpp_py import Wav2VecCTCOnnxEngine
 
 # 기존 gop_system_eval.py의 함수 재사용
 def read_pcm_file(file_path, sample_width=2, channels=1, sample_rate=16000):
