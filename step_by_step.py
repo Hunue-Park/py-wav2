@@ -3,7 +3,7 @@ import argparse
 import logging
 
 from data_processing import load_audio_file, load_transcript
-from w2v_onnx_engine import Wav2VecCTCOnnxEngine
+from realtime_engine.w2v_onnx_core import Wav2VecCTCOnnxCore
 from w2v_engine import Wav2VecCTCEngine
 import pprint
 
@@ -62,7 +62,7 @@ def main(args):
     try:
         print("\n3. 음성 인식 모델 로드 및 확률 분포 계산 중...")
         
-        w2v_engine = Wav2VecCTCOnnxEngine(onnx_model_path='./env/wav2vec2_ctc_dynamic.onnx', tokenizer_path='./env/fine-tuned-wav2vec2-kspon/tokenizer.json')
+        w2v_engine = Wav2VecCTCOnnxCore(onnx_model_path='./env/wav2vec2_ctc_dynamic.onnx', tokenizer_path='./env/fine-tuned-wav2vec2-kspon/tokenizer.json')
         # w2v_real_engine = Wav2VecCTCEngine.get_instance(model_name='./env/fine-tuned-wav2vec2-kspon')
         
     except Exception as e:

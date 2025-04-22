@@ -1,19 +1,17 @@
 import os
 import time
 import threading
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+import json
 import pyaudio
 import wave
-import numpy as np
-from w2v_onnx_engine import Wav2VecCTCOnnxEngine
+import pprint
+
+from realtime_engine.recognition_engine import EngineCoordinator, RecordListener
 
 class RealtimeAudioRecorder:
-    def __init__(self, output_dir, processor=None, callback_interval=1.0, filename_prefix="recorded_audio_"):
+    def __init__(self, output_dir, filename_prefix="recorded_audio_"):
         self.output_dir = output_dir
         self.filename_prefix = filename_prefix
-        self.callback_interval = callback_interval
-        self.processor = processor  # 프로세서 참조 추가
         self.is_recording = False
         self.frames = []
         self.audio = pyaudio.PyAudio()
@@ -42,10 +40,7 @@ class RealtimeAudioRecorder:
         wf.writeframes(b'')  # 빈 데이터 쓰기
         wf.close()
         
-        # 프로세서에 파일 추가 (여기로 이동)
-        if self.processor:
-            self.processor.add_file(self.current_file)
-            print(f"모니터링 시작: {self.current_file}")
+        print(f"파일 생성됨: {self.current_file}")
         
         # 오디오 스트림 시작
         self.stream = self.audio.open(
@@ -75,7 +70,7 @@ class RealtimeAudioRecorder:
             if self.is_recording and self.frames:
                 # 현재까지의 프레임으로 임시 파일 저장
                 self._write_current_frames()
-            time.sleep(self.callback_interval)
+            time.sleep(0.3)  # 300ms 간격으로 파일 업데이트
             
     def _write_current_frames(self):
         """현재까지 녹음된 프레임을 파일로 저장"""
@@ -133,93 +128,77 @@ class RealtimeAudioRecorder:
         self.audio.terminate()
 
 
-class RealtimeAudioProcessor:
-    def __init__(self, engine, reference_text, interval=0.5):
-        self.engine = engine
-        self.reference_text = reference_text
-        self.interval = interval
-        self.active_files = {}  # {파일경로: 마지막 수정 시간}
-        self.stop_event = threading.Event()
-        self.processing_thread = None
-        self.min_file_size = 100  # 최소 파일 크기를 100바이트로 줄임
+# EngineCoordinator를 위한 콜백 핸들러
+class EngineCallbackHandler(RecordListener):
+    def __init__(self):
+        super().__init__(
+            on_start=self.handle_start,
+            on_tick=self.handle_tick,
+            on_start_record_fail=self.handle_start_record_fail,
+            on_record_end=self.handle_record_end,
+            on_score=self.handle_score
+        )
+        self.latest_score = None
         
-    def start_monitoring(self):
-        self.stop_event.clear()
-        self.processing_thread = threading.Thread(target=self._process_loop)
-        self.processing_thread.daemon = True
-        self.processing_thread.start()
+    def handle_start(self):
+        print("\n[이벤트] 평가 시작")
         
-    def stop_monitoring(self):
-        self.stop_event.set()
-        if self.processing_thread:
-            self.processing_thread.join(timeout=1.0)
-        self.active_files.clear()
-    
-    def add_file(self, file_path):
-        """모니터링할 파일 추가"""
-        if os.path.exists(file_path):
-            self.active_files[file_path] = os.path.getmtime(file_path)
-            print(f"파일 모니터링 시작: {file_path}")
-    
-    def remove_file(self, file_path):
-        """모니터링에서 파일 제거"""
-        if file_path in self.active_files:
-            del self.active_files[file_path]
-            print(f"파일 모니터링 중지: {file_path}")
+    def handle_tick(self, current, total):
+        progress_percent = (current / total) * 100
+        print(f"\r[이벤트] 진행 상황: {current}/{total} ({progress_percent:.1f}%)", end="")
+        
+    def handle_start_record_fail(self, error_msg):
+        print(f"\n[이벤트] 평가 시작 실패: {error_msg}")
+        
+    def handle_record_end(self):
+        print("\n[이벤트] 평가 종료")
+        if self.latest_score:
+            self.print_final_result()
+        
+    def handle_score(self, result_json):
+        try:
+            result = json.loads(result_json)
+            self.latest_score = result
+
+            pprint.pprint(result)
+            # # 블록별 평가 결과 출력
+            # print("\n===== 실시간 발음 평가 =====")
             
-    def _process_loop(self):
-        """계속해서 파일들을 확인하고 변경된 경우 처리"""
-        last_results = {}  # 이전 결과 저장
-        
-        while not self.stop_event.is_set():
-            for file_path in list(self.active_files.keys()):
-                try:
-                    if not os.path.exists(file_path):
-                        print(f"파일이 존재하지 않음: {file_path}")
-                        continue
-                        
-                    # 파일이 변경되었는지 확인
-                    current_mtime = os.path.getmtime(file_path)
-                    current_size = os.path.getsize(file_path)
+            # if "evaluated_blocks" in result and result["evaluated_blocks"]:
+            #     for block in result["evaluated_blocks"]:
+            #         print(f"평가됨: '{block['text']}' 점수: {block['gop_score']}")
                     
-                    if current_mtime > self.active_files[file_path]:
-                        self.active_files[file_path] = current_mtime
+            # if "pending_blocks" in result and result["pending_blocks"]:
+            #     for block in result["pending_blocks"]:
+            #         status = block['status']
+            #         if status == 'active':
+            #             print(f"현재: '{block['text']}' (활성)")
+            #         else:
+            #             print(f"대기: '{block['text']}' ({status})")
                         
-                        # 파일 크기가 너무 작으면 건너뛰기 (최소 크기 축소)
-                        if current_size < self.min_file_size:
-                            print(f"파일이 너무 작음 ({current_size} < {self.min_file_size})")
-                            continue
-                            
-                        # 파일 처리
-                        try:
-                            result = self.engine.calculate_gop(file_path, self.reference_text)
-                            
-                            # 이전 결과와 비교하여 변경된 경우만 출력
-                            if file_path not in last_results or result != last_results[file_path]:
-                                last_results[file_path] = result
-                                self._print_result(result)
-                            else:
-                                print("이전 결과와 동일, 출력 생략")
-                                
-                        except Exception as e:
-                            print(f"파일 처리 중 오류 발생: {e}")
-                except Exception as e:
-                    print(f"파일 모니터링 중 오류: {e}")
-                    
-            time.sleep(self.interval)
+            # if "overall_score" in result:
+            #     print(f"\n현재 전체 점수: {result['overall_score']}")
+                
+            # print("=============================")
+            
+        except json.JSONDecodeError:
+            print(f"잘못된 JSON 형식: {result_json}")
+        except Exception as e:
+            print(f"결과 처리 중 오류: {e}")
     
-    def _print_result(self, result):
-        """결과 출력"""
-        print(f"\n===== 실시간 발음 평가 결과 =====")
-        print(f"전체 점수: {result['overall']}")
+    def print_final_result(self):
+        if not self.latest_score:
+            return
+            
+        print("\n\n===== 최종 평가 결과 =====")
+        print(f"전체 점수: {self.latest_score.get('overall_score', 0)}")
         
-        print("\n단어별 점수:")
-        for word_data in result["words"]:
-            word = word_data["word"]
-            score = word_data["scores"]["pronunciation"]
-            print(f"- {word}: {score}")
-        
-        print("========================\n")
+        if "blocks" in self.latest_score:
+            print("\n단어별 점수:")
+            for block in self.latest_score.get("blocks", []):
+                print(f"- {block['text']}: {block.get('gop_score', 0)}")
+                
+        print("=============================\n")
 
 
 def main():
@@ -234,16 +213,21 @@ def main():
         os.makedirs(OUTPUT_DIR)
     
     # 엔진 초기화
-    print("모델 로딩 중...")
-    engine = Wav2VecCTCOnnxEngine(MODEL_PATH, TOKENIZER_PATH)
-    print("모델 로딩 완료!")
+    print("엔진 초기화 중...")
+    engine = EngineCoordinator(
+        onnx_model_path=MODEL_PATH,
+        tokenizer_path=TOKENIZER_PATH,
+        confidence_threshold=0.6,  # 약간 낮은 임계값 설정
+        update_interval=0.5  # 0.5초 간격으로 틱 이벤트
+    )
+    print("엔진 초기화 완료!")
     
-    # 실시간 프로세서 생성
-    processor = RealtimeAudioProcessor(engine, REFERENCE_TEXT, interval=0.1)
-    processor.start_monitoring()
+    # 콜백 핸들러 생성
+    callback_handler = EngineCallbackHandler()
+    engine.set_record_listener(callback_handler)
     
-    # 녹음기 생성 (프로세서 참조 전달)
-    recorder = RealtimeAudioRecorder(OUTPUT_DIR, processor=processor, callback_interval=1.0)
+    # 녹음기 생성
+    recorder = RealtimeAudioRecorder(OUTPUT_DIR)
     
     try:
         print(f"\n정답 텍스트: {REFERENCE_TEXT}")
@@ -252,6 +236,7 @@ def main():
         print("q: 프로그램 종료")
         
         recording = False
+        evaluating = False
         
         while True:
             cmd = input("\n> ")
@@ -261,16 +246,28 @@ def main():
                     # 녹음 시작
                     recorder.start_recording()
                     recording = True
-                    # 프로세서에 파일 추가는 recorder 내부에서 처리
+                    # 이미 평가 중이 아니면 초기화 및 평가 시작
+                    if not evaluating:
+                        engine.initialize(REFERENCE_TEXT)
+                        # 녹음이 시작되면 바로 평가도 시작
+                        if recorder.current_file:
+                            engine.start_evaluation(recorder.current_file)
+                            evaluating = True
                 else:
                     # 녹음 종료
                     final_path = recorder.stop_recording()
                     recording = False
-                    # 모니터링에서 제거
-                    processor.remove_file(final_path)
+                    # 평가 중지
+                    if evaluating:
+                        engine.stop_evaluation()
+                        evaluating = False
+                        # 최종 결과 출력
+                        callback_handler.print_final_result()
             elif cmd.lower() == 'q':
                 if recording:
                     recorder.stop_recording()
+                if evaluating:
+                    engine.stop_evaluation()
                 break
             else:
                 print("알 수 없는 명령어입니다. 'r'로 녹음 시작/종료, 'q'로 종료하세요.")
@@ -278,7 +275,10 @@ def main():
     except KeyboardInterrupt:
         print("프로그램을 종료합니다...")
     finally:
-        processor.stop_monitoring()
+        if recording:
+            recorder.stop_recording()
+        if evaluating:
+            engine.stop_evaluation()
 
 
 if __name__ == "__main__":

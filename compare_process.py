@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 import onnxruntime as ort
-from w2v_onnx_engine import Wav2VecCTCOnnxEngine
+from realtime_engine.w2v_onnx_core import Wav2VecCTCOnnxCore
 # 1) 준비
 audio_path = "./hello_in_dinner.wav"
 processor = Wav2Vec2Processor.from_pretrained("./env/fine-tuned-wav2vec2-kspon")
@@ -10,7 +10,7 @@ model     = Wav2Vec2ForCTC.from_pretrained("./env/fine-tuned-wav2vec2-kspon")
 model.eval().cpu()
 
 sess = ort.InferenceSession("./env/wav2vec2_ctc_dynamic.onnx", providers=["CPUExecutionProvider"])
-onnx_engine = Wav2VecCTCOnnxEngine(
+onnx_engine = Wav2VecCTCOnnxCore(
     onnx_model_path='./env/wav2vec2_ctc_dynamic.onnx',
     tokenizer_path='./env/fine-tuned-wav2vec2-kspon/tokenizer.json'
 )

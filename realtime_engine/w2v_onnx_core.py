@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-class Wav2VecCTCOnnxEngine:
+class Wav2VecCTCOnnxCore:
     """
     ONNX Runtime based Wav2Vec2 CTC inference engine using a quantized ONNX model.
     Includes fallback for prototype matrix in either orientation.
@@ -271,4 +271,164 @@ class Wav2VecCTCOnnxEngine:
         text = self.tokenizer.decode(dedup_ids)
         logger.debug("Decoded text: %s", text)
         return text
+
+    def calculate_gop_from_tensor(self, audio_tensor: torch.Tensor, text: str, eps: float = 1e-8) -> dict:
+        """
+        전처리된 오디오 텐서에서 직접 GOP 계산
+        
+        Args:
+            audio_tensor: 전처리된 오디오 텐서 [1, T]
+            text: 평가할 텍스트
+            eps: 수치 안정성을 위한 작은 값
+            
+        Returns:
+            dict: GOP 평가 결과
+        """
+        # 텐서를 numpy 배열로 변환
+        input_np = audio_tensor.numpy()
+        
+        # 2) run ONNX to get hidden & logits
+        hidden_np, logits_np = self.session.run(
+            [self.hidden_name, self.logits_name],
+            {self.input_name: input_np}
+        )
+        
+        # remove batch dim
+        X      = hidden_np[0]   # shape (T, D)
+        logits = logits_np[0]   # shape (T, V)
+
+        # 3) temperature‐scaled softmax → probs
+        scaled     = logits
+        exp_logits = np.exp(scaled - scaled.max(axis=1, keepdims=True))
+        probs      = exp_logits / exp_logits.sum(axis=1, keepdims=True)
+
+        # 4) tokenize
+        text = text.replace(" ", "|")
+        token_ids = self.tokenizer.encode(text).ids
+
+        V = self.prototype_matrix.shape[0]
+        blank_id = self.tokenizer.token_to_id("|")
+        safe_ids = [tid if 0 <= tid < V else blank_id for tid in token_ids]
+
+        # 5) expand prototypes & DTW
+        proto = self.prototype_matrix[safe_ids]  # (M, D)
+        T, M   = X.shape[0], len(safe_ids)
+        avg    = max(1, T // M)
+        Yexp   = np.repeat(proto, avg, axis=0)  # (M*avg, D)
+        pX, pYexp = self.dtw_align(X, Yexp)
+        pY    = [y // avg for y in pYexp]
+
+        # 6) collect frames per token
+        frames = defaultdict(list)
+        for f, t in zip(pX, pY):
+            frames[t].append(f)
+
+        # 7) per‐token log‐prob scores
+        tok_scores = []
+        for idx, tid in enumerate(safe_ids):
+            tok = self.tokenizer.id_to_token(tid)
+            frs = frames.get(idx, [])
+            if frs:
+                ps    = probs[frs, tid]
+                score = float(np.mean(np.log(ps + eps)))
+            else:
+                score = float(-np.inf)
+            tok_scores.append((tok, score))
+
+        # 8) normalize to [0,100]
+        raw  = np.array([s for _, s in tok_scores], dtype=np.float32)
+        mask = np.isfinite(raw)
+        if mask.any():
+            mn   = raw[mask].min()
+            mx   = raw[mask].max()
+            span = mx - mn if mx > mn else eps
+            norm = [(t, (s - mn) / span * 100.0 if np.isfinite(s) else 0.0)
+                    for t, s in tok_scores]
+        else:
+            norm = [(t, 0.0) for t, _ in tok_scores]
+
+        # 9) group into words
+        words, ct, cs = [], [], []
+        for t, sc in norm:
+            if t == "[UNK]":
+                continue
+            if t == "|":
+                if ct:
+                    pronunciation_score = round(sum(cs) / len(cs)) if cs else 0
+                    words.append({
+                        "word": "".join(ct),
+                        "scores": {"pronunciation": pronunciation_score}
+                    })
+                ct, cs = [], []
+            else:
+                ct.append(t)
+                cs.append(sc)
+        if ct:
+            pronunciation_score = round(sum(cs) / len(cs)) if cs else 0
+            words.append({
+                "word": "".join(ct),
+                "scores": {"pronunciation": pronunciation_score}
+            })
+
+        overall = (
+            round(sum(w["scores"]["pronunciation"] for w in words) / len(words), 1)
+            if words else 0.0
+        )
+        return {"overall": overall, "pronunciation": overall, "words": words}
+
+    def calculate_gop_with_context(self, audio_tensor: torch.Tensor, target_text: str, 
+                                   context_before: str = "", context_after: str = "", 
+                                   target_index: int = None) -> dict:
+        """
+        컨텍스트를 고려하여 특정 블록의 GOP 계산
+        
+        Args:
+            audio_tensor: 전처리된 오디오 텐서
+            target_text: 평가할 대상 텍스트
+            context_before: 대상 전의 컨텍스트
+            context_after: 대상 후의 컨텍스트
+            target_index: 전체 텍스트에서 대상의 인덱스 (없으면 자동 계산)
+            
+        Returns:
+            dict: 대상 블록에 대한 GOP 평가 결과
+        """
+        # 컨텍스트를 포함한 전체 텍스트
+        full_text = f"{context_before} {target_text} {context_after}".strip()
+        
+        # 대상 텍스트의 인덱스 계산
+        if target_index is None:
+            # context_before의 단어 수를 세어 target의 시작 인덱스 결정
+            words_before = len([w for w in context_before.split() if w]) if context_before else 0
+            target_index = words_before
+        
+        # 대상 텍스트의 단어 수 계산
+        target_word_count = len([w for w in target_text.split() if w])
+        
+        # 전체 텍스트로 GOP 계산
+        result = self.calculate_gop_from_tensor(audio_tensor, full_text)
+        
+        # 모든 단어가 있는지 확인
+        if not result["words"] or len(result["words"]) <= target_index:
+            # 전체 텍스트 처리에 실패한 경우, 대상 텍스트만으로 시도
+            fallback_result = self.calculate_gop_from_tensor(audio_tensor, target_text)
+            return fallback_result
+        
+        # target_index 위치의 단어들에 해당하는 결과 추출
+        # 인덱스 범위 유효성 검사
+        end_index = min(target_index + target_word_count, len(result["words"]))
+        target_words = result["words"][target_index:end_index]
+        
+        # 대상 블록에 대한 결과 생성
+        if target_words:
+            target_score = sum(w["scores"]["pronunciation"] for w in target_words) / len(target_words)
+        else:
+            target_score = 0.0
+        
+        target_result = {
+            "overall": round(target_score, 1),
+            "pronunciation": round(target_score, 1),
+            "words": target_words
+        }
+        
+        return target_result
 

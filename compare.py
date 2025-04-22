@@ -6,7 +6,7 @@ import onnxruntime as ort
 import torch
 from collections import Counter
 
-from w2v_onnx_engine import Wav2VecCTCOnnxEngine
+from realtime_engine.w2v_onnx_core import Wav2VecCTCOnnxCore
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 import librosa
 
@@ -59,7 +59,7 @@ def main():
     compare_logits(ids_pt, ids_onx, special)
 
     # 5) CTC 디코딩 비교
-    onnx_engine = Wav2VecCTCOnnxEngine(
+    onnx_engine = Wav2VecCTCOnnxCore(
         onnx_model_path='./env/wav2vec2_ctc_dynamic.onnx',
         tokenizer_path='./env/fine-tuned-wav2vec2-kspon/tokenizer.json'
     )
