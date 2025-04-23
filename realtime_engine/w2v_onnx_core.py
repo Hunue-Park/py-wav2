@@ -27,6 +27,8 @@ class Wav2VecCTCOnnxCore:
         tokenizer_path: str,
         device: str = "CPU"
     ):
+        self.weight_norm_mid = 50
+        self.weight_norm_steepness = 0.2
         # 1) session & model load
         providers = ["CPUExecutionProvider"] if device.upper() == "CPU" else ["CUDAExecutionProvider", "CPUExecutionProvider"]
         self.session = ort.InferenceSession(onnx_model_path, providers=providers)
@@ -299,7 +301,7 @@ class Wav2VecCTCOnnxCore:
             if syl == '|':
                 if current_word:
                     word_text = ''.join(s[0] for s in current_word)
-                    word_score = round(self.weighted_avg_with_sigmoid(current_word))
+                    word_score = round(self.weighted_avg_with_sigmoid(current_word, self.weight_norm_mid, self.weight_norm_steepness))
                     words.append({"word": word_text, "scores": {"pronunciation": word_score}})
                     current_word = []
             else:
@@ -308,7 +310,7 @@ class Wav2VecCTCOnnxCore:
         # 마지막 단어 처리
         if current_word:
             word_text = ''.join(s[0] for s in current_word)
-            word_score = round(self.weighted_avg_with_sigmoid(current_word))
+            word_score = round(self.weighted_avg_with_sigmoid(current_word, self.weight_norm_mid, self.weight_norm_steepness))
             words.append({"word": word_text, "scores": {"pronunciation": word_score}})
         
         return words

@@ -23,7 +23,7 @@ class EvaluationController:
         sentence_manager: SentenceBlockManager,
         progress_tracker: ProgressTracker,
         confidence_threshold: float = 10,
-        min_time_between_evals: float = 0.5
+        min_time_between_evals: float = 0.1
     ):
         """
         평가 컨트롤러 초기화
@@ -129,7 +129,7 @@ class EvaluationController:
                 
             except Exception as e:
                 logger.error(f"블록 {block_id} GOP 계산 중 오류: {e}")
-        
+        print("best_match_id$$$$$$$$", best_match_id, "best_match_score$$$$$$$$", best_match_score)
         # 최적 매치 블록을 찾았으면 해당 블록 평가 진행
         if best_match_id is not None and best_match_score >= self.confidence_threshold:
             # 평가 가능한 시점인지 확인

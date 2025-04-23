@@ -20,7 +20,7 @@ class AudioProcessor:
         self,
         sample_rate: int = 16000,
         chunk_duration: float = 2.5,  # 2.5초로 증가
-        polling_interval: float = 0.1
+        polling_interval: float = 0.03
     ):
         """
         오디오 프로세서 초기화
@@ -183,32 +183,29 @@ class AudioProcessor:
         버퍼에서 청크 단위로 처리 가능한지 확인하고 처리
         """
         # 버퍼의 전체 샘플 수 계산
-        total_samples = sum(len(data) for data in self.buffer)
+        # total_samples = sum(len(data) for data in self.buffer)
         chunk_samples = int(self.chunk_duration * self.sample_rate)
+        # 청크 추출
+        chunk = self._extract_chunk(chunk_samples)
         
-        # 청크 단위로 처리 가능한 경우
-        while total_samples >= chunk_samples:
-            # 청크 추출
-            chunk = self._extract_chunk(chunk_samples)
+        # 청크 전처리 및 저장
+        self.latest_chunk = self._preprocess_chunk(chunk)
+        # 청크 타임스탬프 업데이트
+        self.last_chunk_time = time.time()
+        
+        # # 처리된 샘플 수 업데이트
+        # total_samples -= chunk_samples
+        
+        # 청크 생성 후 콜백 호출
+        if self.latest_chunk is not None:
+            metadata = {
+                "timestamp": time.time(),
+                "duration": self.chunk_duration,
+                "total_duration": self.total_duration
+            }
+            for callback in self.chunk_callbacks:
+                callback(self.latest_chunk, metadata)
             
-            # 청크 전처리 및 저장
-            self.latest_chunk = self._preprocess_chunk(chunk)
-            
-            # 청크 타임스탬프 업데이트
-            self.last_chunk_time = time.time()
-            
-            # 처리된 샘플 수 업데이트
-            total_samples -= chunk_samples
-            
-            # 청크 생성 후 콜백 호출
-            if self.latest_chunk is not None:
-                metadata = {
-                    "timestamp": time.time(),
-                    "duration": self.chunk_duration,
-                    "total_duration": self.total_duration
-                }
-                for callback in self.chunk_callbacks:
-                    callback(self.latest_chunk, metadata)
         
     def _extract_chunk(self, chunk_samples: int) -> np.ndarray:
         """
@@ -274,7 +271,7 @@ class AudioProcessor:
     
     def _detect_voice_activity(self, audio_data: np.ndarray, 
                             energy_threshold: float = 0.0005,
-                            min_speech_frames: int = 50) -> bool:
+                            min_speech_frames: int = 10) -> bool:
         """
         간단한 에너지 기반 VAD 구현
         

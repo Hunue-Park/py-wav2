@@ -205,7 +205,7 @@ def main():
     # 설정
     MODEL_PATH = "./env/wav2vec2_ctc_dynamic.onnx"
     TOKENIZER_PATH = "./env/fine-tuned-wav2vec2-kspon/tokenizer.json"
-    REFERENCE_TEXT = "참으로 위대한 일은 언제나 서서히 이루어지고 눈에 보이지 않게 성장해 가는 법이다."
+    REFERENCE_TEXT = "높은 지능은 자만심을 불러오는 원흉이다. 자신의 전문 분야가 아닌 것에 대해 섣불리 나서지 않고 사려 깊게 행동한다면, 높은 지능은 투자자에게 강점이 될 것이다."
     OUTPUT_DIR = "recordings"
     
     # 출력 디렉토리 생성
@@ -217,7 +217,7 @@ def main():
     engine = EngineCoordinator(
         onnx_model_path=MODEL_PATH,
         tokenizer_path=TOKENIZER_PATH,
-        confidence_threshold=0.6,  # 약간 낮은 임계값 설정
+        confidence_threshold=35,  # 약간 낮은 임계값 설정
         update_interval=0.3  # 0.5초 간격으로 틱 이벤트
     )
     print("엔진 초기화 완료!")
