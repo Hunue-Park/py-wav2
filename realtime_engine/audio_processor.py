@@ -20,7 +20,7 @@ class AudioProcessor:
         self,
         sample_rate: int = 16000,
         chunk_duration: float = 2.5,  # 2.5초로 증가
-        polling_interval: float = 0.03
+        polling_interval: float = 0.1
     ):
         """
         오디오 프로세서 초기화

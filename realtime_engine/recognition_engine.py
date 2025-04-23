@@ -90,7 +90,7 @@ class EngineCoordinator:
         """
         self.record_listener = record_listener
     
-    def initialize(self, sentence: str) -> bool:
+    def initialize(self, sentence: str, audio_polling_interval: float = 0.03, min_time_between_evals: float = 0.5) -> bool:
         """
         주어진 문장으로 시스템 초기화
         
@@ -114,8 +114,8 @@ class EngineCoordinator:
             # 오디오 프로세서 초기화
             self.audio_processor = AudioProcessor(
                 sample_rate=16000,
-                chunk_duration=2.5,
-                polling_interval=0.1
+                chunk_duration=2.0,
+                polling_interval=audio_polling_interval
             )
             
             # 평가 컨트롤러 초기화
@@ -123,7 +123,8 @@ class EngineCoordinator:
                 recognition_engine=self.recognition_engine,
                 sentence_manager=self.sentence_manager,
                 progress_tracker=self.progress_tracker,
-                confidence_threshold=self.confidence_threshold
+                confidence_threshold=self.confidence_threshold,
+                min_time_between_evals=min_time_between_evals
             )
             
             # 오디오 처리 이벤트 등록
@@ -245,7 +246,7 @@ class EngineCoordinator:
             if not self.is_running:
                 return
                 
-            # 시간 기반 진행 확인
+            # 시간 기반 진행 확인 -> 사용하지 않음.
             # if self.progress_tracker.should_advance():
             #     self.sentence_manager.advance_active_block()
             #     self.progress_tracker.advance()

@@ -248,7 +248,7 @@ def main():
                     recording = True
                     # 이미 평가 중이 아니면 초기화 및 평가 시작
                     if not evaluating:
-                        engine.initialize(REFERENCE_TEXT)
+                        engine.initialize(REFERENCE_TEXT, audio_polling_interval=0.03, min_time_between_evals=0.5)
                         # 녹음이 시작되면 바로 평가도 시작
                         if recorder.current_file:
                             engine.start_evaluation(recorder.current_file)
