@@ -8,6 +8,7 @@ from collections import defaultdict
 import logging
 import torch
 from dtw import dtw
+import math
 
 # Configure logging for debugging
 logging.basicConfig(level=logging.DEBUG)
@@ -271,6 +272,46 @@ class Wav2VecCTCOnnxCore:
         text = self.tokenizer.decode(dedup_ids)
         logger.debug("Decoded text: %s", text)
         return text
+    
+    def sigmoid_weight(self, score, mid=35, steepness=0.2):
+        # 0.5~1.5 범위의 가중치 생성
+        return 0.5 + 1.0 / (1 + math.exp(-steepness * (score - mid)))
+
+    def weighted_avg_with_sigmoid(self, syllables, mid=35, steepness=0.2):
+        total_weighted_score = 0
+        total_weight = 0
+        
+        for syl, score in syllables:
+            if syl == '|':  # 구분자 건너뛰기
+                continue
+            weight = self.sigmoid_weight(score, mid, steepness)
+            total_weighted_score += score * weight
+            total_weight += weight
+        
+        raw_score = total_weighted_score / total_weight if total_weight > 0 else 0
+        return min(raw_score, 100)
+
+    def group_words_sigmoid(self, syllable_scores):
+        words = []
+        current_word = []
+        
+        for i, (syl, score) in enumerate(syllable_scores):
+            if syl == '|':
+                if current_word:
+                    word_text = ''.join(s[0] for s in current_word)
+                    word_score = round(self.weighted_avg_with_sigmoid(current_word))
+                    words.append({"word": word_text, "scores": {"pronunciation": word_score}})
+                    current_word = []
+            else:
+                current_word.append((syl, score))
+        
+        # 마지막 단어 처리
+        if current_word:
+            word_text = ''.join(s[0] for s in current_word)
+            word_score = round(self.weighted_avg_with_sigmoid(current_word))
+            words.append({"word": word_text, "scores": {"pronunciation": word_score}})
+        
+        return words
 
     def calculate_gop_from_tensor(self, audio_tensor: torch.Tensor, text: str, eps: float = 1e-8) -> dict:
         """
@@ -348,27 +389,7 @@ class Wav2VecCTCOnnxCore:
             norm = [(t, 0.0) for t, _ in tok_scores]
 
         # 9) group into words
-        words, ct, cs = [], [], []
-        for t, sc in norm:
-            if t == "[UNK]":
-                continue
-            if t == "|":
-                if ct:
-                    pronunciation_score = round(sum(cs) / len(cs)) if cs else 0
-                    words.append({
-                        "word": "".join(ct),
-                        "scores": {"pronunciation": pronunciation_score}
-                    })
-                ct, cs = [], []
-            else:
-                ct.append(t)
-                cs.append(sc)
-        if ct:
-            pronunciation_score = round(sum(cs) / len(cs)) if cs else 0
-            words.append({
-                "word": "".join(ct),
-                "scores": {"pronunciation": pronunciation_score}
-            })
+        words = self.group_words_sigmoid(norm)
 
         overall = (
             round(sum(w["scores"]["pronunciation"] for w in words) / len(words), 1)
