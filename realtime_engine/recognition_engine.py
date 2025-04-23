@@ -246,10 +246,10 @@ class EngineCoordinator:
                 return
                 
             # 시간 기반 진행 확인
-            if self.progress_tracker.should_advance():
-                self.sentence_manager.advance_active_block()
-                self.progress_tracker.advance()
-                logger.info(f"시간 기반 진행: 블록 {self.sentence_manager.active_block_id}")
+            # if self.progress_tracker.should_advance():
+            #     self.sentence_manager.advance_active_block()
+            #     self.progress_tracker.advance()
+            #     logger.info(f"시간 기반 진행: 블록 {self.sentence_manager.active_block_id}")
             
             # 인식 결과 처리
             if audio_chunk is not None:

@@ -22,8 +22,8 @@ class EvaluationController:
         recognition_engine: Wav2VecCTCOnnxCore,
         sentence_manager: SentenceBlockManager,
         progress_tracker: ProgressTracker,
-        confidence_threshold: float = 0.7,
-        min_time_between_evals: float = 1.0
+        confidence_threshold: float = 10,
+        min_time_between_evals: float = 0.5
     ):
         """
         평가 컨트롤러 초기화
@@ -137,19 +137,46 @@ class EvaluationController:
             if (self.last_eval_time is None or 
                 current_time - self.last_eval_time >= self.min_time_between_evals):
                 
+                # 어떤 블록이든 매치된 블록 평가
                 self._evaluate_block(best_match_id, self.cached_results[best_match_id])
                 self.last_eval_time = current_time
                 
-                # 활성 블록 업데이트 (필요시)
+                # 활성 블록 업데이트 (케이스별 처리)
                 if best_match_id == self.sentence_manager.active_block_id:
-                    # 다음 블록으로 진행
+                    # 1. 현재 활성 블록이 인식된 경우 - 다음 블록으로 진행
                     self.sentence_manager.advance_active_block()
                     
                     # ProgressTracker 업데이트
                     self.progress_tracker.set_current_index(self.sentence_manager.active_block_id)
+                    
                 elif best_match_id < self.sentence_manager.active_block_id:
-                    # 이전 블록이 인식된 경우 (순서가 뒤바뀐 발화)
+                    # 2. 이전 블록이 인식된 경우 (순서가 뒤바뀐 발화)
                     logger.info(f"이전 블록 {best_match_id}가 인식됨 (현재 활성 블록: {self.sentence_manager.active_block_id})")
+                    
+                    # 활성 블록 상태 업데이트
+                    self.sentence_manager.set_active_block(best_match_id)
+                    
+                    # 평가 후에는 다음 블록으로 이동
+                    self.sentence_manager.advance_active_block()
+                    
+                    # ProgressTracker 업데이트
+                    self.progress_tracker.set_current_index(self.sentence_manager.active_block_id)
+                    
+                elif best_match_id > self.sentence_manager.active_block_id:
+                    # 3. 다음 블록이 인식된 경우 (블록을 건너뛴 경우)
+                    logger.info(f"건너뛴 블록 {best_match_id}가 인식됨 (현재 활성 블록: {self.sentence_manager.active_block_id})")
+                    
+                    # 중간 블록들 처리 (선택적으로 추가 가능)
+                    # 여기서는 중간 블록들을 넘어가고, 바로 매치된 블록으로 이동
+                    
+                    # 활성 블록을 인식된 블록 다음으로 설정
+                    self.sentence_manager.set_active_block(best_match_id + 1)
+                    if best_match_id + 1 >= len(self.sentence_manager.blocks):
+                        # 마지막 블록이면 마지막 블록을 활성 상태로 유지
+                        self.sentence_manager.set_active_block(best_match_id)
+                    
+                    # ProgressTracker 업데이트
+                    self.progress_tracker.set_current_index(self.sentence_manager.active_block_id)
         
         # 새 형식으로 결과 반환
         return self._create_result_format()
@@ -215,21 +242,16 @@ class EvaluationController:
             
         # 상태 업데이트
         if block.status == BlockStatus.PENDING or block.status == BlockStatus.ACTIVE:
-            block.set_status(BlockStatus.RECOGNIZED)
-            block.recognized_at = time.time()
+            self.sentence_manager.update_block_status(block_id, BlockStatus.RECOGNIZED)
             
         # GOP 점수 설정
-        block.set_score(evaluation_data["gop_score"])
+        self.sentence_manager.set_block_score(block_id, evaluation_data["gop_score"])
         
         # 확신도 설정 (있는 경우)
-        if "confidence" in evaluation_data:
-            block.set_confidence(evaluation_data["confidence"])
-            
-        # 평가 완료 시간 설정
-        block.evaluated_at = time.time()
-        
-        # 평가 완료 상태로 변경
-        block.set_status(BlockStatus.EVALUATED)
+        # if "confidence" in evaluation_data:
+        #     block.set_confidence(evaluation_data["confidence"])
+
+        self.sentence_manager.update_block_status(block_id, BlockStatus.EVALUATED)
         
         logger.info(f"블록 {block_id} ({block.text}) 평가 완료: 점수={block.gop_score}")
     

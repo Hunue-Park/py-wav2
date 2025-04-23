@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import List, Optional, Dict, Any
-
+import time
 
 class BlockStatus(Enum):
     """블록의 상태를 나타내는 열거형"""
@@ -136,6 +136,10 @@ class SentenceBlockManager:
         block = self.get_block(block_id)
         if block:
             block.set_status(status)
+            if status == BlockStatus.RECOGNIZED:
+                block.recognized_at = time.time()
+            if status == BlockStatus.EVALUATED:
+                block.evaluated_at = time.time()
             return True
         return False
     
