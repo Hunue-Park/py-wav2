@@ -161,25 +161,6 @@ class EngineCallbackHandler(RecordListener):
             self.latest_score = result
 
             pprint.pprint(result)
-            # # 블록별 평가 결과 출력
-            # print("\n===== 실시간 발음 평가 =====")
-            
-            # if "evaluated_blocks" in result and result["evaluated_blocks"]:
-            #     for block in result["evaluated_blocks"]:
-            #         print(f"평가됨: '{block['text']}' 점수: {block['gop_score']}")
-                    
-            # if "pending_blocks" in result and result["pending_blocks"]:
-            #     for block in result["pending_blocks"]:
-            #         status = block['status']
-            #         if status == 'active':
-            #             print(f"현재: '{block['text']}' (활성)")
-            #         else:
-            #             print(f"대기: '{block['text']}' ({status})")
-                        
-            # if "overall_score" in result:
-            #     print(f"\n현재 전체 점수: {result['overall_score']}")
-                
-            # print("=============================")
             
         except json.JSONDecodeError:
             print(f"잘못된 JSON 형식: {result_json}")
@@ -205,7 +186,7 @@ def main():
     # 설정
     MODEL_PATH = "./env/wav2vec2_ctc_dynamic.onnx"
     TOKENIZER_PATH = "./env/fine-tuned-wav2vec2-kspon/tokenizer.json"
-    REFERENCE_TEXT = "높은 지능은 자만심을 불러오는 원흉이다. 자신의 전문 분야가 아닌 것에 대해 섣불리 나서지 않고 사려 깊게 행동한다면, 높은 지능은 투자자에게 강점이 될 것이다."
+    REFERENCE_TEXT = "당신의 시간은 한정되어 있으니, 다른 사람의 인생을 사는 데 낭비하지 마라."
     OUTPUT_DIR = "recordings"
     
     # 출력 디렉토리 생성
@@ -217,7 +198,7 @@ def main():
     engine = EngineCoordinator(
         onnx_model_path=MODEL_PATH,
         tokenizer_path=TOKENIZER_PATH,
-        confidence_threshold=35,  # 약간 낮은 임계값 설정
+        confidence_threshold=10,  # 약간 낮은 임계값 설정
         update_interval=0.3  # 0.5초 간격으로 틱 이벤트
     )
     print("엔진 초기화 완료!")

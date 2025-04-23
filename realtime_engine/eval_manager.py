@@ -129,7 +129,6 @@ class EvaluationController:
                 
             except Exception as e:
                 logger.error(f"블록 {block_id} GOP 계산 중 오류: {e}")
-        print("best_match_id$$$$$$$$", best_match_id, "best_match_score$$$$$$$$", best_match_score)
         # 최적 매치 블록을 찾았으면 해당 블록 평가 진행
         if best_match_id is not None and best_match_score >= self.confidence_threshold:
             # 평가 가능한 시점인지 확인
@@ -195,11 +194,11 @@ class EvaluationController:
         if not evaluated_blocks:
             return {
                 "result": {
-                    "kernel_version": "1.0.0",
                     "overall": 0.0,
                     "pronunciation": 0.0,
                     "resource_version": "1.0.0",
-                    "words": []
+                    "words": [],
+                    "eof": False
                 }
             }
         
@@ -218,15 +217,36 @@ class EvaluationController:
                     }
                 })
         
-        return {
+        # 모든 블록이 평가 완료되었는지 확인
+        all_blocks_evaluated = len(evaluated_blocks) == len(self.sentence_manager.blocks)
+        
+        # 기본 결과 구조
+        result = {
             "result": {
-                "kernel_version": "1.0.0",
                 "overall": avg_score_rounded,
                 "pronunciation": avg_score_rounded,
                 "resource_version": "1.0.0",
-                "words": words
+                "words": words,
+                "eof": False
             }
         }
+        
+        # 모든 블록이 평가 완료된 경우 추가 정보 포함
+        if all_blocks_evaluated:
+            result["result"]["eof"] = True
+            result["result"]["final_score"] = avg_score_rounded
+            
+            # 강화된 결과 데이터 추가
+            result["result"]["details"] = {
+                "total_blocks": len(self.sentence_manager.blocks),
+                "completion_time": time.time(),
+                "score_breakdown": {
+                    "min_score": round(min((b.gop_score for b in evaluated_blocks if b.gop_score is not None), default=0), 1),
+                    "max_score": round(max((b.gop_score for b in evaluated_blocks if b.gop_score is not None), default=0), 1)
+                }
+            }
+        
+        return result
     
     def _evaluate_block(self, block_id: int, evaluation_data: Dict[str, Any]) -> None:
         """
